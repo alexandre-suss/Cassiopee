@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -72,8 +72,8 @@ PyObject* K_OCC::revolve(PyObject* self, PyObject* args)
   delete shape;
   SETSHAPE(newshp);
 
-  printf("INFO: after loft: Nb edges=%d\n", se->Extent());
-  printf("INFO: after loft: Nb faces=%d\n", sf->Extent());
+  printf("INFO: after revolve: Nb edges=%d\n", se->Extent());
+  printf("INFO: after revolve: Nb faces=%d\n", sf->Extent());
 
   Py_INCREF(Py_None);
   return Py_None;

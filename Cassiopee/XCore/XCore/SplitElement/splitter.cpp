@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -27,6 +27,7 @@ using std::unordered_set;
 // stub
 PyObject *splitElements(PyObject *self, PyObject *args)
 {
+    Py_INCREF(Py_None);
     return Py_None;
 }
 // #include "Memory/vector_view.hpp"

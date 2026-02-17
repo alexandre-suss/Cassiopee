@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -18,8 +18,6 @@
 */
 // convertCAD2Arrays (algo=0)
 
-#define OCEVERSION 0
-
 #include "occ.h"
 #include "kcore.h"
 #include <stdio.h>
@@ -36,9 +34,7 @@
 #include "TopoDS_Shape.hxx"
 #include "Standard_ConstructionError.hxx"
 
-#include "BRepPrimAPI_MakeCylinder.hxx"
-#include "BRepPrimAPI_MakeBox.hxx"
-#include "BRepAlgoAPI_Cut.hxx"
+#include "BRep_Tool.hxx"
 #include "BRepGProp.hxx"
 #include "BRepMesh_IncrementalMesh.hxx"
 #include "GProp_GProps.hxx"
@@ -66,54 +62,6 @@ PyObject* K_OCC::convertCAD2Arrays0(PyObject* self, PyObject* args)
                     &inFileName, &inFileFormat, 
                     &outFileName, &outFileFormat,
                     &deflection)) return NULL;
-
-  //Create a simple box with a size 100x100x50, centered around the origin
-  /*
-  gp_Pnt lowerLeftCornerOfBox(-50.0,-50.0,0.0);
-  BRepPrimAPI_MakeBox boxMaker(lowerLeftCornerOfBox,100,100,50);
-  TopoDS_Shape box = boxMaker.Shape();
-  */
-    
-  //Create a cylinder with a radius 25.0 and height 50.0, centered at the origin 
-  /*
-  BRepPrimAPI_MakeCylinder cylinderMaker(25.0,50.0);
-  TopoDS_Shape cylinder = cylinderMaker.Shape();
-  */
-    
-  //Cut the cylinder out from the box
-  /*
-  BRepAlgoAPI_Cut cutMaker(box,cylinder);
-  TopoDS_Shape boxWithHole = cutMaker.Shape();
-  */
-    
-  //Write the resulting shape to a file
-  /*
-  STEPControl_Writer writer;
-  writer.Transfer(boxWithHole, STEPControl_AsIs);
-  writer.Write("boxWithHole.stp");
-  */
-    
-  //We compute some volumetric properties of the resulting shape
-  /*
-  GProp_GProps volumeProperties;
-  BRepGProp::VolumeProperties(boxWithHole,volumeProperties);
-  */
-    
-  //Compute the volume of the model
-  //std::cout << std::setprecision(14) << "Volume of the model is: " << volumeProperties.Mass() << std::endl;
-  
-  //Compute the center of mass
-  //std::cout << "Center of mass is: " << volumeProperties.CentreOfMass().X() << " " << volumeProperties.CentreOfMass().Y() << " " << volumeProperties.CentreOfMass().Z() << std::endl;
-
-  /*
-  const Standard_Real aLinearDeflection=0.1;
-  if (BrepTools::Triangulation(boxWithHole, aLinearDeflection) == false)
-  {
-    BrepMesh_IncrementalMesh aMesh(boxWithHole, 0.1);
-    Standard_Boolean bDone = aMesh.isDone();
-    if (aMesh.isModified()) boxWithHole = aMesh.Shape();
-  }
-  */
 
   // Read CAD
   TopoDS_Shape shape;

@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -66,10 +66,12 @@ PyObject* K_GENERATOR::closeMesh(PyObject* self, PyObject* args)
   }
   posx++; posy++; posz++;
 
+  E_Int api = f->getApi();
+
   if (res == 1)
   {
     closeStructuredMesh(f->begin(posx), f->begin(posy), f->begin(posz), im, jm, km, eps);
-    PyObject* tpl = K_ARRAY::buildArray3(*f, varString, im, jm, km); 
+    PyObject* tpl = K_ARRAY::buildArray3(*f, varString, im, jm, km, api); 
     RELEASESHAREDS(array, f);
     return tpl;
   }
@@ -89,8 +91,7 @@ PyObject* K_GENERATOR::closeMesh(PyObject* self, PyObject* args)
         rmDegeneratedFaces, rmDegeneratedElts, exportIndirPts);
 
     RELEASESHAREDU(array, f, cn);
-    if (tpl == NULL) return array;
-    else return tpl;
+    return tpl;
   }
   else
   {
@@ -127,10 +128,12 @@ PyObject* K_GENERATOR::closeMeshLegacy(PyObject* self, PyObject* args)
   }
   posx++; posy++; posz++;
 
+  E_Int api = f->getApi();
+
   if (res == 1)
   {
     closeStructuredMesh(f->begin(posx), f->begin(posy), f->begin(posz), im, jm, km, eps);
-    PyObject* tpl = K_ARRAY::buildArray3(*f, varString, im, jm, km); 
+    PyObject* tpl = K_ARRAY::buildArray3(*f, varString, im, jm, km, api); 
     RELEASESHAREDS(array, f);
     return tpl;
   }
@@ -145,7 +148,7 @@ PyObject* K_GENERATOR::closeMeshLegacy(PyObject* self, PyObject* args)
     }
 
     closeUnstructuredMesh(posx, posy, posz, eps, eltType, *f, *cn, removeDegen);
-    PyObject* tpl = K_ARRAY::buildArray3(*f, varString, *cn, eltType);
+    PyObject* tpl = K_ARRAY::buildArray3(*f, varString, *cn, eltType, api);
     RELEASESHAREDU(array, f, cn);
     return tpl;
   }

@@ -5,12 +5,12 @@ import Post.PyTree as P
 import Geom.PyTree as D
 import Transform.PyTree as T
 import Generator.PyTree as G
-import Converter.Internal as Internal
 import KCore.test as test
+
+LOCAL = test.getLocal()
 
 dz = 0.01
 xmin, ymin, zmin, xmax, ymax, zmax = [-0.5,-0.5,0,1.5,0.5,dz]
-mesh_name = "naca_curvi"
 size = 0.01
 L = 1
 N = 200
@@ -20,7 +20,7 @@ tbox = G.cartHexa((xmin,ymin,zmin),(xmax-xmin,ymax-ymin,zmin),(2,2,1))
 ff = P.exteriorFaces(tbox)
 ff = D.uniformize(ff, N)
 
-airfoil = D.naca(12., N=N_airfoil, sharpte=True)
+airfoil = D.naca(12., N=N_airfoil)
 
 airfoil = T.reorder(airfoil, (-1,2,3))
 distrib = D.line((0,0,0), (0.1,0,0), N=10)
@@ -74,11 +74,11 @@ for c, e  in enumerate(ext):
 #C.convertPyTree2File(m, 'mesh.cgns')
 
 import KCore.Dist as Dist
-from KCore.config import *
-(netcdf, netcdfIncDir, netcdfLibDir, netcdflibs) = Dist.checkNetcdf(additionalLibPaths,
-                                                                    additionalIncludePaths)
+additionalLibPaths = Dist.getAdditionalLibPaths()
+additionalIncludePaths = Dist.getAdditionalIncludePaths()
+(netcdf, netcdfIncDir, netcdfLibDir, netcdflibs) = Dist.checkNetcdf()
 
 if netcdf:
-    C.convertPyTree2File(m, 'out.grid')
-    t = C.convertFile2PyTree('out.grid')
+    C.convertPyTree2File(m, LOCAL+'/out.grid')
+    t = C.convertFile2PyTree(LOCAL+'/out.grid')
     test.testT(t, 1)

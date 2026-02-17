@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -868,15 +868,20 @@ void K_INTERP::OBbox(
   if (dimPb == 2)
   {
     val = sqrt(n);
-    if (val == floor(val))   // si le nuage de point est carre on enleve une ligne (cas 2D)
-      n_ = n-int(val);
   }
   else if (dimPb == 3)
   {
     val = pow(n, 1./3.);
-    if (val == floor(val))     // si le nuage de point est un cube on enleve un plan
-      n_ = n-int(val);
   }
+  else val = E_Float(n);
+
+  #ifdef E_ADOLC
+  if (val == floor(val))   // si le nuage de point est carre on enleve une ligne (cas 2D)
+    n_ = n-E_Int(val.value());
+#else
+  if (val == floor(val))   // si le nuage de point est carre on enleve une ligne (cas 2D)
+    n_ = n-E_Int(val);
+#endif
 
   // PCA of the stencil to find the axis
   PCA(dimPb, n_, x, y, z, axis);   // A MODIFIER ?
@@ -1122,7 +1127,7 @@ void K_INTERP::getBestDonor(
           volElt);
         vol += volElt;
       }
-      vol = vol * 1./float(ENbrs.size());
+      vol /= float(ENbrs.size());
       realVol = vol;
       // On penalise la cellule si elle a des voisins de cellN != 1 et si elle est sur le bord
       if (penalty == 1)

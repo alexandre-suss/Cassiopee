@@ -149,6 +149,7 @@ List of functions
     Converter.PyTree.getNobNozOfZone
     Converter.PyTree.breakConnectivity
     Converter.PyTree.mergeConnectivity
+    Converter.PyTree.mergeByEltType
     Converter.PyTree.sliceNGonFaces
     Converter.PyTree.deleteEmptyZones
     Converter.PyTree.addState
@@ -206,6 +207,7 @@ List of functions
     Converter.PyTree.addGhostCells
     Converter.PyTree.rmGhostCells
     Converter.PyTree.signNGonFaces
+    Converter.PyTree.unsignNGonFaces
 
 **-- Array / PyTree analysis**
 
@@ -534,6 +536,24 @@ pyTree creation and manipulation
 
     .. literalinclude:: ../build/Examples/Converter/mergeConnectivityPT.py
 
+-----------------------------------------------------------------------------------
+
+.. py:function:: Converter.mergeByEltType(a)
+
+    Merge an unstructured array by element type, thus ensuring each element type
+    is listed only once. For example, if the input zone is TRI,TRI,QUAD,
+    return a TRI,QUAD zone.
+
+    :param a: input data
+    :type a: [array, list of arrays] or [pyTree, base, zone, list of zones]
+    :rtype: Identical to input
+
+    *Example of use:*
+
+    * `Merge an unstructured array by element type (pyTree) <Examples/Converter/mergeByEltTypePT.py>`_:
+
+    .. literalinclude:: ../build/Examples/Converter/mergeByEltType.py
+
 ---------------------------------------------------------------------------
 
 .. py:function:: Converter.PyTree.sliceNGonFaces(z, indices=None)
@@ -759,9 +779,9 @@ pyTree creation and manipulation
 
     *Example of use:*
 
-    * `Fill empty BC (pyTree) <Examples/Converter/fillEmptyBCWith.py>`_:
+    * `Fill empty BC (pyTree) <Examples/Converter/fillEmptyBCWithPT.py>`_:
 
-    .. literalinclude:: ../build/Examples/Converter/fillEmptyBCWith.py    
+    .. literalinclude:: ../build/Examples/Converter/fillEmptyBCWithPT.py    
 
 ---------------------------------------------------------------------------
 
@@ -925,9 +945,9 @@ pyTree creation and manipulation
 
     *Example of use:*
 
-    * `Get empty BCs (pyTree) <Examples/Converter/getEmptyBC.py>`_:
+    * `Get empty BCs (pyTree) <Examples/Converter/getEmptyBCPT.py>`_:
 
-    .. literalinclude:: ../build/Examples/Converter/getEmptyBC.py
+    .. literalinclude:: ../build/Examples/Converter/getEmptyBCPT.py
 
 ---------------------------------------------------------------------------
 
@@ -1419,7 +1439,7 @@ Array / PyTree common manipulations
     :type varNameString: string or list of strings
     :param value: value in case of constant init or function.
     :type value: float or function and parameters
-    :param isVectorized: when using functions, indicates that function is vectorized.
+    :param isVectorized: when using functions, indicates that function is in vectorized form.
     :type isVectorized: boolean
     :rtype: identical to input
 
@@ -1840,7 +1860,7 @@ Array / PyTree common manipulations
 
 ---------------------------------------------------------------------------
 
-.. py:function:: Converter.PyTree.signNGonFaces(t)
+.. py:function:: Converter.PyTree.signNGonFaces(t, force=True)
 
     For NGON zones, sign the NFACE connectivity with cell external normals.
 
@@ -1849,12 +1869,32 @@ Array / PyTree common manipulations
     :param t: tree
     :type t: pyTree
     :rtype: t with signed NFACE
+    :param force: if True, always sign NFACE, else restore signness found when reading the pyTree.
+    :type force: boolean
 
     *Example of use:*
 
     * `Sign NGon faces (pyTree) <Examples/Converter/signNGonFacesPT.py>`_:
 
     .. literalinclude:: ../build/Examples/Converter/signNGonFacesPT.py
+
+---------------------------------------------------------------------------
+
+.. py:function:: Converter.PyTree.unsignNGonFaces(t)
+
+    For NGON zones, unsign the NFACE connectivity.
+
+    Exists also as in place version (_unsignNGonFaces) that modifies t and returns None.
+
+    :param t: tree
+    :type t: pyTree
+    :rtype: t with unsigned NFACE
+
+    *Example of use:*
+
+    * `Unsign NGon faces (pyTree) <Examples/Converter/unsignNGonFacesPT.py>`_:
+
+    .. literalinclude:: ../build/Examples/Converter/unsignNGonFacesPT.py
 
 ---------------------------------------------------------------------------
 
@@ -1881,7 +1921,7 @@ Array / PyTree common manipulations
 Array / PyTree analysis
 ------------------------------------
 
-.. py:function:: Converter.diffArrays(a, b, removeCoordinates=True)
+.. py:function:: Converter.diffArrays(a, b, removeCoordinates=True, atol=1.e-11, rtol=0.)
 
     Given a solution in a and a solution in b, both defined on the same mesh, 
     return the differences.
@@ -1892,6 +1932,10 @@ Array / PyTree analysis
     :type b: [list of arrays] or [pyTree, base, zone, list of zones]
     :param removeCoordinates: if True, remove original coordinates (pyTree)
     :type removeCoordinates: boolean
+    :param atol: absolute tolerance
+    :type atol: float
+    :param rtol: relative tolerance
+    :type rtol: float
     :rtype: Identical to input 1
 
     *Example of use:*
@@ -2057,7 +2101,7 @@ Array / PyTree analysis
 
 .. py:function:: Converter.normL0(a, var)
 
-    Return the L0 norm of field 'var' on input.
+    Return the infinite norm of field 'var' on input.
 
     :param a: input data
     :type a: [array, list of arrays] or [pyTree, base, zone, list of zones]

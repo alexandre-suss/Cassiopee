@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -41,7 +41,7 @@ PyObject* K_CONNECTOR::chimeraTransfer(PyObject* self, PyObject* args)
   if (!PYPARSETUPLE_(args, OOOO_ OO_,
                     &pyIndRcv, &pyIndDonor, &pyArrayTypes, &pyArrayCoefs, &arrayR, &arrayD))
   {
-      return NULL;
+    return NULL;
   }
 
   /*--------------------------------------*/
@@ -220,6 +220,7 @@ PyObject* K_CONNECTOR::chimeraTransfer(PyObject* self, PyObject* args)
     }
   }
   // sortie
+  RELEASESHAREDS(tpl, fieldROut);
   RELEASESHAREDB(resr, arrayR, fr, cnr); 
   RELEASESHAREDB(resd, arrayD, fd, cnd); 
   RELEASESHAREDN(pyIndRcv, rcvPtsI);

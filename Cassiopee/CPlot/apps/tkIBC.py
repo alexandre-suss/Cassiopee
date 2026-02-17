@@ -122,13 +122,13 @@ def symmetrize():
     noz = CTK.Nz[0]
     bodySymName = CTK.t[2][nob][0]
     z = CTK.t[2][nob][2][noz]
-    snear_sym = Internal.getValue(Internal.getNodeFromName(z,'snear'))
+    snear_sym = Internal.getValue(Internal.getNodeFromName(z, 'snear'))
 
     if axis == 'Around XY-': dir_sym = 1
     elif axis == 'Around XZ-': dir_sym = 2
     elif axis == 'Around YZ-': dir_sym = 3
 
-    D_IBM._symetrizePb(CTK.t, bodySymName, snear_sym, dir_sym=dir_sym)
+    D_IBM._symmetrizePb(CTK.t, bodySymName, snear_sym, dir_sym=dir_sym)
     CTK.TXT.insert('START', 'Symmetry plane has been created with snear=%f.\n'%snear_sym)
     (CTK.Nb, CTK.Nz) = CPlot.updateCPlotNumbering(CTK.t)
     CTK.TKTREE.updateApp()

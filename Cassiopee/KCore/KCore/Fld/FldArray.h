@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -165,6 +165,7 @@ class FldArray
     inline E_Int getApi() { if (_compact == false) return 3; else return 1; }
 
     /** Get dimensionality, NGon and ME. */
+    // For ME, see K_CONNECT::getDimME.
     inline E_Int getDim(char* eltType=NULL);
     /** Get number of elements, NGon and ME. */
     inline E_Int getNElts();
@@ -173,7 +174,7 @@ class FldArray
     inline E_Int getNGonType() const { return _ngon; }
     inline E_Bool isNGon() const { return _ngon > 0; }
     // 1: compact array1 NGONv3, 2: rake NGONv3, 3: rake NGONv4
-    void setNGon(E_Int ngon) { _ngon = ngon; };
+    void setNGonType(E_Int ngon) { _ngon = ngon; };
     /** Only if NGon */
     inline E_Int getNFaces();
     inline E_Int* getNGon();
@@ -480,17 +481,18 @@ E_Int FldArray<T>::getDim(char* eltType)
 {
   E_Int size0;  // number of vertices of the first face
   E_Int dim = 3;
-  if (_ngon > 0)  // NGon
-  {
+  // if (_ngon > 0)  // NGon
+  // {
     if (_ngon == 3)  // Array3/NGonv4
     {
-      E_Int* ngon = _rake[0];
+      if (getNFaces() == 0) return dim;
       E_Int* indPG = _rake[2];
       E_Int pos0 = indPG[0];
       size0 = indPG[1] - pos0;
     }
     else if (_ngon == 2)  // Array3/NGonv3
     {
+      if (getNFaces() == 0) return dim;
       E_Int* ngon = _rake[0];
       E_Int* indPG = _rake[2];
       E_Int pos0 = indPG[0];
@@ -498,6 +500,7 @@ E_Int FldArray<T>::getDim(char* eltType)
     }
     else // Array1/NGONv3
     {
+      if (getNFaces() == 0) return dim;
       E_Int* ngon = _rake[0]+2;
       E_Int* indPG = getIndPG();
       E_Int pos0 = indPG[0];
@@ -505,14 +508,14 @@ E_Int FldArray<T>::getDim(char* eltType)
     }
     if (size0 == 1) dim = 1;
     else if (size0 == 2) dim = 2;
-  }
-  else  // ME connectivity
-  {
-    assert((eltType != NULL) && "The first eltType must be provided.");
-    if (strcmp(eltType, "NODE") == 0) dim = 0;
-    else if (strcmp(eltType, "BAR") == 0) dim = 1;
-    else if (strcmp(eltType, "TRI") == 0 || strcmp(eltType, "QUAD") == 0) dim = 2;
-  }
+  // }
+  // else  // ME connectivity
+  // {
+  //   assert((eltType != NULL) && "The first eltType must be provided.");
+  //   if (strcmp(eltType, "NODE") == 0) dim = 0;
+  //   else if (strcmp(eltType, "BAR") == 0) dim = 1;
+  //   else if (strcmp(eltType, "TRI") == 0 || strcmp(eltType, "QUAD") == 0) dim = 2;
+  // }
   return dim;
 }
 
@@ -584,9 +587,9 @@ E_Int* FldArray<T>::getIndPG()
       _ngon = 1;
       E_Int nfaces = _rake[0][0];
       E_Int* ptrf = _rake[0]+2;
-      E_Int c = 0;
       _rake[2] = new E_Int [nfaces];
       E_Int* indPG = _rake[2];
+      E_Int c = 0;
       for (E_Int i = 0; i < nfaces; i++) { indPG[i] = c; c += ptrf[c]+1; }
     }
     return _rake[2];

@@ -12,7 +12,6 @@ LOCAL = test.getLocal()
 
 dz = 0.01
 xmin, ymin, zmin, xmax, ymax, zmax = [-0.5,-0.5,0,1.5,0.5,dz]
-mesh_name = "naca_curvi"
 size = 0.01
 L = 1
 N = 200
@@ -22,7 +21,7 @@ tbox = G.cartHexa((xmin,ymin,zmin),(xmax-xmin,ymax-ymin,zmin),(2,2,1))
 ff = P.exteriorFaces(tbox)
 ff = D.uniformize(ff, N)
 
-airfoil = D.naca(12., N=N_airfoil, sharpte=True)
+airfoil = D.naca(12., N=N_airfoil)
 
 airfoil = T.reorder(airfoil, (-1,2,3))
 distrib = D.line((0,0,0), (0.1,0,0), N=10)

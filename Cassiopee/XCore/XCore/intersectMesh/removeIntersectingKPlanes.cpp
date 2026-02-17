@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -610,6 +610,7 @@ PyObject *K_XCORE::removeIntersectingKPlanes(PyObject *self, PyObject *args)
         assert(inside);
     }
 
+    Py_INCREF(Py_None);
     return Py_None;
     */
 

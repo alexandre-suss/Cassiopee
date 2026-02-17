@@ -119,7 +119,6 @@ def _connectMatchNGon(z, tol=1.e-6):
     import Transform.PyTree as T
     if Cmpi.size == 1: return None
 
-    #print(Cmpi.rank, 'has ', z[0])
     # get exterior faces and indirection
     indicesF = []
     zf = P.exteriorFaces(z, indices=indicesF)
@@ -133,12 +132,12 @@ def _connectMatchNGon(z, tol=1.e-6):
     indicesBC = []
     for b in bnds:
         f = Internal.getNodeFromName1(b, 'PointList')
-        indicesBC.append(f[1])
+        indicesBC.append(f[1].ravel("k"))
     undefBC = False
     if indicesBC != []:
-        indicesBC = numpy.concatenate(indicesBC, axis=1)
+        indicesBC = numpy.concatenate(indicesBC)
         nfacesExt = indicesF.shape[0]
-        nfacesDef = indicesBC.shape[1]
+        nfacesDef = indicesBC.shape[0]
         if nfacesExt < nfacesDef:
             print('Warning: zone %s: number of faces defined by BCs is greater than the number of external faces. Try to reduce the matching tolerance.'%(z[0]))
         elif nfacesExt > nfacesDef:
@@ -189,19 +188,88 @@ def _connectMatchNGon(z, tol=1.e-6):
     return None
 
 #==============================================================================
+# setHoleInterpolatedPoints
+# NGON, centered cellN, depth=1
+# BCMatch must be set in t
+#==============================================================================
+def _setHoleInterpolatedPoints(t):
+    """Set cellN=2 around cellN=0."""
+
+    # Compute graph of match
+    procDict = Cmpi.getProcDict(t)
+    graph = Cmpi.computeGraph(t, type='match', procDict=procDict)
+    zones = Internal.getZones(t)
+    export = {}
+
+    for z in zones:
+        dim = Internal.getZoneDim(z)
+        if dim[0] == 'Unstructured' and dim[3] == 'NGON':
+            # adaptation needed by actual setHoleInterpolatedPoints
+            Internal._adaptNGon42NGon3(z)
+            Internal._adaptNFace2PE(z, remove=False)
+
+            # get face values
+            GCs = Internal.getNodesFromType2(z, 'GridConnectivity_t')
+            for gc in GCs:
+                donor = Internal.getValue(gc)
+                PL = Internal.getBCFaceNode(z, gc)[1] # PointList
+                PLD = Internal.getBCFaceNode(z, gc, donor=True)[1] # PointListDonor
+                fld = Converter.converter.extractBCMatchNG(z, PL, ['cellN'],
+                                                           Internal.__GridCoordinates__,
+                                                           Internal.__FlowSolutionNodes__,
+                                                           Internal.__FlowSolutionCenters__)
+                oppNode = procDict[donor]
+                n = [donor, z[0], fld, PLD.ravel('k')]
+                if oppNode not in export: export[oppNode] = [n]
+                else: export[oppNode] += [n]
+
+    # sendrecv
+    recvDatas = Cmpi.sendRecv(export, graph)
+
+    # Mean on faces (we must find the opposite face from donor name)
+    indices = {}; BCField = {}
+    for i in recvDatas:
+        for n in recvDatas[i]:
+            # donor is supposed to have a unique matching match
+            (donor, source, fld, PLD) = n
+            z = Internal.getNodeFromName2(t, donor)
+            zn = z[0]
+            dim = Internal.getZoneDim(z)
+            if dim[0] == 'Unstructured' and dim[3] == 'NGON':
+                fld1 = Converter.converter.buildBCMatchFieldNG(z, PLD, fld, ['cellN'],
+                                                               Internal.__GridCoordinates__,
+                                                               Internal.__FlowSolutionNodes__,
+                                                               Internal.__FlowSolutionCenters__)
+            if zn not in indices: indices[zn] = PLD
+            else: indices[zn] = numpy.concatenate((indices[zn], PLD))
+            if zn not in BCField: BCField[zn] = fld1[1][0].ravel('k')
+            else: BCField[zn] = numpy.concatenate((BCField[zn], fld1[1][0].ravel('k')))
+
+    for z in zones:
+        zn = z[0]
+        f = C.getField('centers:cellN', z, api=1)[0]
+        if f != []:
+            if zn in indices: inds = indices[zn]
+            else: inds = None
+            if zn in BCField: bcf = BCField[zn]
+            else: bcf = None
+
+            centers = connector.getOversetHolesInterpCellCenters(f, 1, 0, 'cellN', inds, bcf)
+            C.setFields([centers], z, 'centers')
+
+    return None
+
+#==============================================================================
 def giveName2Window(p, zname, zopp):
     if p[0] == p[1]:
         if p[0] == 1: pos = zname+'_imin_'+zopp
         else: pos = zname+'_imax_'+zopp
-
     elif p[2] == p[3]:
         if p[2] == 1: pos = zname+'_jmin_'+zopp
         else: pos = zname+'_jmax_'+zopp
-
     elif p[4] == p[5]:
         if p[4] == 1: pos = zname+'_kmin_'+zopp
         else: pos = zname+'_kmax_'+zopp
-
     return pos
 
 #==============================================================================
@@ -786,6 +854,22 @@ def _transfer2(t, tc, variables, graph, intersectionDict, dictOfADT,
 # IN: sameBase=1 (itype='chimera'): autorise l'interpolation dans la meme base
 # memes arguments que setInterpData
 #=========================================================================
+def setInterpData(aR, aD, order=2, penalty=1, nature=0, extrap=1,
+                  method='lagrangian', loc='nodes', storage='direct',
+                  interpDataType=1, hook=None, cartesian=False, sameBase=0,
+                  topTreeRcv=None, topTreeDnr=None, sameName=1, verbose=2,
+                  dim=3, itype='abutting'):
+    """Compute interpolation data for abutting or chimera intergrid connectivity."""
+    tR = Internal.copyRef(aR)
+    tD = Internal.copyRef(aD)
+    _setInterpData(tR, tD, order=order, penalty=penalty, nature=nature, extrap=extrap,
+                   method=method, loc=loc, storage=storage,
+                   interpDataType=interpDataType, hook=hook, cartesian=cartesian, sameBase=sameBase,
+                   topTreeRcv=topTreeRcv, topTreeDnr=topTreeDnr, sameName=sameName, verbose=verbose,
+                   dim=dim, itype=itype)
+    if storage == 'direct': return tR
+    else: return tD
+
 def _setInterpData(aR, aD, order=2, penalty=1, nature=0, extrap=1,
                    method='lagrangian', loc='nodes', storage='direct',
                    interpDataType=1, hook=None, cartesian=False, sameBase=0,
@@ -952,30 +1036,30 @@ def _setInterpData(aR, aD, order=2, penalty=1, nature=0, extrap=1,
 
     return None
 
-def setInterpData2(tR, tD, order=2, loc='centers', cartesian=False):
+def setInterpData2(aR, aD, order=2, loc='centers', cartesian=False, extrap=1, nature=1, penalty=1, verbose=2):
     """Compute interpolation data for 2 different trees."""
-    aD = Internal.copyRef(tD)
-    aR = Internal.copyRef(tR)
-    _setInterpData2(aR, aD, order=order, loc=loc, cartesian=cartesian)
-    return aD
+    tD = Internal.copyRef(aD)
+    tR = Internal.copyRef(aR)
+    _setInterpData2(tR, tD, order=order, loc=loc, cartesian=cartesian, extrap=extrap, nature=nature, penalty=penalty, verbose=verbose)
+    return tD
 
-def _setInterpData2(tR, tD, order=2, loc='centers', cartesian=False):
+def _setInterpData2(aR, aD, order=2, loc='centers', cartesian=False, extrap=1, nature=1, penalty=1, verbose=2):
     """Compute interpolation data for 2 different trees."""
 
     if loc == 'nodes': varcelln = 'cellN'
     else: varcelln = 'centers:cellN'
 
     # Clean previous IDs if necessary
-    Internal._rmNodesFromType(tD, 'ZoneSubRegion_t')
-    Internal._rmNodesFromName(tD, 'GridCoordinates#Init')
+    Internal._rmNodesFromType(aD, 'ZoneSubRegion_t')
+    Internal._rmNodesFromName(aD, 'GridCoordinates#Init')
 
     if cartesian: interpDataType = 0 # 0 if tc is cartesian
     else: interpDataType = 1
-    locR = loc
+
     # Compute BBoxTrees
-    tsBB = Cmpi.createBBoxTree(tR)
+    tsBB = Cmpi.createBBoxTree(aR)
     procDicts = Cmpi.getProcDict(tsBB)
-    tDBB = Cmpi.createBBoxTree(tD)
+    tDBB = Cmpi.createBBoxTree(aD)
     procDictD = Cmpi.getProcDict(tDBB)
     interDicts = X.getIntersectingDomains(tsBB, tDBB, taabb=tsBB, taabb2=tDBB)
     interDictD2R = X.getIntersectingDomains(tDBB, tsBB, taabb=tDBB, taabb2=tsBB)
@@ -984,24 +1068,25 @@ def _setInterpData2(tR, tD, order=2, loc='centers', cartesian=False):
                               procDict=procDictD, procDict2=procDicts, t2=tsBB, reduction=True)
     graph2 = Cmpi.computeGraph(tsBB, type='bbox3', intersectionsDict=interDicts,
                                procDict=procDicts, procDict2=procDictD, t2=tDBB, reduction=True)
-    Cmpi._addXZones(tD, graph, variables=['cellN'], noCoordinates=False, cartesian=cartesian, subr=False, keepOldNodes=False, zoneGC=True)
+    Cmpi._addXZones(aD, graph, variables=['cellN'], noCoordinates=False, cartesian=cartesian, subr=False, keepOldNodes=False, zoneGC=True)
 
     datas = {}
-    for zs in Internal.getZones(tR):
+    for zs in Internal.getZones(aR):
         zrname = Internal.getName(zs)
         dnrZones = []
         for zdname in interDicts[zrname]:
-            zd = Internal.getNodeFromName2(tD, zdname)
+            zd = Internal.getNodeFromName2(aD, zdname)
             dnrZones.append(zd)
 
         cellNPresent = C.isNamePresent(zs, varcelln)
         if cellNPresent == -1: C._initVars(zs, varcelln, 2.) # interp all
 
         if dnrZones != []:
-            X._setInterpData(zs, dnrZones, nature=1, penalty=1, order=order, loc=locR, storage='inverse',
-                             sameName=0, interpDataType=interpDataType, itype='chimera')
-        if cellNPresent == -1:
-            C._rmVars(zs, [varcelln])
+            X._setInterpData(zs, dnrZones, nature=nature, penalty=penalty, order=order, loc=loc, storage='inverse',
+                             extrap=extrap, sameName=0, interpDataType=interpDataType, itype='chimera', verbose=verbose)
+
+        if cellNPresent == -1: C._rmVars(zs, [varcelln])
+
         for zd in dnrZones:
             zdname = zd[0]
             destProc = procDictD[zdname]
@@ -1013,7 +1098,7 @@ def _setInterpData2(tR, tD, order=2, loc='centers', cartesian=False):
 
             if IDs != []:
                 if destProc == Cmpi.rank:
-                    zD = Internal.getNodeFromName2(tD, zdname)
+                    zD = Internal.getNodeFromName2(aD, zdname)
                     zD[2] += IDs
                 else:
                     if destProc not in datas: datas[destProc] = [[zdname,IDs]]
@@ -1021,19 +1106,18 @@ def _setInterpData2(tR, tD, order=2, loc='centers', cartesian=False):
             else:
                 if destProc not in datas: datas[destProc] = []
 
-    Cmpi._rmXZones(tD)
+    Cmpi._rmXZones(aD)
     destDatas = Cmpi.sendRecv(datas, graph2)
     for i in destDatas:
         for n in destDatas[i]:
             zname = n[0]
             IDs = n[1]
             if IDs != []:
-                zD = Internal.getNodeFromName2(tD, zname)
+                zD = Internal.getNodeFromName2(aD, zname)
                 zD[2] += IDs
     datas = {}; destDatas = None
 
     return None
-
 
 #==============================================================================
 def __setInterpTransfers_WireModel(zones, zonesD, vars, dtloc, param_int, param_real, type_transfert, nitrun,

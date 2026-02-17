@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -26,7 +26,6 @@
 #define EPSILON      1.e-12
 
 #define Vector_t     std::vector
-#define SQRT         std::sqrt
 
 #define SIGN(a) ((a < -ZERO_M) ? -1 : ((a > ZERO_M) ? 1 : 0))  
 
@@ -35,7 +34,7 @@
 #include "Def/DefCplusPlusConst.h"
 
 #ifdef E_DOUBLEINT
-  #define IDX_NONE E_Int(9223372036854775807)
+  #define IDX_NONE 9223372036854775807
 #else
   #define IDX_NONE 2147483647
 #endif

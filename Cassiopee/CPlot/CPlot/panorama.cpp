@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -349,6 +349,7 @@ PyObject* K_CPLOT::panorama(PyObject* self, PyObject* args)
   RELEASESHAREDS(bottomArray, bottom);
   RELEASESHAREDS(finalArray, final);
   
+  Py_INCREF(Py_None);
   return Py_None;
 }
 
@@ -488,6 +489,7 @@ PyObject* K_CPLOT::panoramaODS(PyObject* self, PyObject* args)
     }
   }
   */
+  //Py_INCREF(Py_None);
   //return Py_None;
 
   // transformation
@@ -545,6 +547,7 @@ PyObject* K_CPLOT::panoramaODS(PyObject* self, PyObject* args)
   
   RELEASESHAREDS(finalArray, final);
   
+  Py_INCREF(Py_None);
   return Py_None;
 }
 

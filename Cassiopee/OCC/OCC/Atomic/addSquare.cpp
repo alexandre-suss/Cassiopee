@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -30,25 +30,25 @@
 #include "BRepBuilderAPI_MakeFace.hxx"
 
 //=====================================================================
-// Add a square to CAD hook
+// Add a square to CAD hook from P0, width, height, depth
 //=====================================================================
 PyObject* K_OCC::addSquare(PyObject* self, PyObject* args)
 {
   PyObject* hook; 
-  E_Float x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4;
+  E_Float x0, y0, z0, width, height;
   E_Int makeFace;
-  if (!PYPARSETUPLE_(args, O_ TRRR_ TRRR_ TRRR_ TRRR_ I_, &hook, &x1, &y1, &z1, 
-    &x2, &y2, &z2, &x3, &y3, &z3, &x4, &y4, &z4, &makeFace)) return NULL;
+  if (!PYPARSETUPLE_(args, O_ TRRR_ RR_ I_, &hook, &x0, &y0, &z0, 
+    &width, &height, &makeFace)) return NULL;
 
   GETSHAPE;
   GETMAPSURFACES;
   GETMAPEDGES;
 
   /* new square */
-  gp_Pnt p1(x1, y1, z1); // Bottom left
-  gp_Pnt p2(x2, y2, z2); // Bottom right
-  gp_Pnt p3(x3, y3, z3); // Top right
-  gp_Pnt p4(x4, y4, z4); // Top left
+  gp_Pnt p1(x0, y0, z0); // Bottom left
+  gp_Pnt p2(x0+width, y0, z0); // Bottom right
+  gp_Pnt p3(x0+width, y0+height, z0); // Top right
+  gp_Pnt p4(x0, y0+height, z0); // Top left
 
   TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(p1, p2);
   TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(p2, p3);

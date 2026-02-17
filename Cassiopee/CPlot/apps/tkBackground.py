@@ -7,7 +7,6 @@ import CPlot.PyTree as CPlot
 import CPlot.Tk as CTK
 import Generator.PyTree as G
 import Geom.PyTree as D
-import Transform.PyTree as T
 import Converter.Internal as Internal
 
 # local widgets list
@@ -292,7 +291,7 @@ def deleteBackgroundBase():
     nodes = Internal.getNodesFromName1(CTK.t, 'BACKGROUND')
     if nodes == []: return []
     base = nodes[0]
-    zones = Internal.getNodesFromType(base, 'Zone_t')
+    zones = Internal.getZones(base)
     # get .RenderInfo if existing
     RIS = []
     for z in zones:

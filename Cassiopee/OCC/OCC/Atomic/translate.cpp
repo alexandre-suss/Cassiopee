@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -25,7 +25,7 @@
 #include "TopoDS.hxx"
 #include "BRepBuilderAPI_Transform.hxx"
 #include "BRep_Builder.hxx"
-#include <BRepBuilderAPI_Sewing.hxx>
+#include "BRepBuilderAPI_Sewing.hxx"
 
 //=====================================================================
 // Translate the full shape or some faces

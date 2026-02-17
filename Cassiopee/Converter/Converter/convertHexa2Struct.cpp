@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -200,6 +200,7 @@ PyObject* K_CONVERTER::convertHexa2Struct(PyObject* self, PyObject* args)
           fnp[i+j*ni+k*ni*nj] = fp[ii[i+nv*j+2*nv*k]];
         }
   }
+  RELEASESHAREDS(tpl, fn);
 
   return tpl;
 }

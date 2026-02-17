@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -164,11 +164,6 @@ namespace K_METRIC
     const E_Float* xt, const E_Float* yt, const E_Float* zt,
     E_Float* nsurfx, E_Float* nsurfy, E_Float* nsurfz);
 
-  void compNormUnstructSurft(
-    K_FLD::FldArrayI& cn, const char* eltType,
-    const E_Float* xt, const E_Float* yt, const E_Float* zt,
-    E_Float* nxt, E_Float* nyt, E_Float* nzt);
-    
   /* Compute barycenter of cells.
      This version does not use minOfIntvoid
      IN: im, im, km: Number of mesh vertices along %i, %j, %k
@@ -346,8 +341,11 @@ namespace K_METRIC
   E_Int compVolNGonImad(E_Float *x, E_Float *y, E_Float *z,
     K_FLD::FldArrayI &cn, E_Float *cellVols);
 
-  void compute_cell_volume(E_Int, K_FLD::FldArrayI &, E_Float *, E_Float *,
-    E_Float *, E_Float &, E_Int refIdx=0);
+  void compute_cell_volume(
+    E_Int, K_FLD::FldArrayI &,
+    E_Int *, E_Int *, E_Int *, E_Int *,
+    E_Float *, E_Float *, E_Float *, E_Float &, E_Int refIdx=0
+  );
   
   void compute_face_centers_and_areas(K_FLD::FldArrayI &cn, E_Float *x,
     E_Float *y, E_Float *z, E_Float *fcenters, E_Float *fareas);

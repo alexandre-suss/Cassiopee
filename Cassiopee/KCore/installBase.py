@@ -18,7 +18,7 @@ installDict = {
     **installDictUser,
     ###############################################################################
     'WDAAA728Z': [
-        'Windows win64+msys2 (XJ-Onera)',
+        'Windows win64+msys2 (XJ-ONERA)',
         'gfortran', # f77compiler
         'gfortran', # f90compiler
         'gcc', # Cppcompiler
@@ -66,7 +66,7 @@ installDict = {
     ],
     ###############################################################################
     'WDAAA161Z': [
-        'Windows win64+msys2 (CB-Onera)',
+        'Windows win64+msys2 (CB-ONERA)',
         'gfortran', # f77compiler
         'gfortran', # f90compiler
         'gcc', # Cppcompiler
@@ -74,7 +74,7 @@ installDict = {
         [], # f77AdditionalOptions
         True, # useOMP
         False, # static
-        ['c:/Users/benoit/msys64/mingw64/include'], # additionalIncludePaths
+        ['c:/Users/benoit/msys64/mingw64/include', 'c:/Users/benoit/msys64/mingw64/include/openblas'], # additionalIncludePaths
         ['gomp', 'gfortran'], # additionalLibs
         ['c:/Users/benoit/msys64/mingw64/lib'], # additionalLibPaths
         False, # useCuda
@@ -178,7 +178,7 @@ installDict = {
     ],
     ###############################################################################
     'celeste': [
-        'Grosse machine de post-traitement (Onera)',
+        'Grosse machine de post-traitement (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -209,11 +209,11 @@ installDict = {
         [] # NvccAdditionalOptions
     ],
     ###############################################################################
-    'ld_spack1': [
-        'Poste grand calcul Onera-ld (Onera)',
+    'ld-clang': [
+        'Poste grand calcul Onera-ld (ONERA)',
         'gfortran', # f77compiler
         'gfortran', # f90compiler
-        'gcc', # Cppcompiler
+        'clang', # Cppcompiler
         ['-DCACHELINE=32', '-DNB_SOCKET=1'], # CppAdditionalOptions
         [], # f77AdditionalOptions
         True, # useOMP
@@ -226,7 +226,7 @@ installDict = {
     ],
     ###############################################################################
     'ld_spack2': [
-        'Poste grand calcul Onera-ld (Onera)',
+        'Poste grand calcul Onera-ld (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -242,7 +242,7 @@ installDict = {
     ],
     ###############################################################################
     'eos8': [
-        'Poste grand calcul Onera-ld (Onera) avec Centos8',
+        'Poste grand calcul Onera-ld (ONERA) avec Centos8',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -258,7 +258,7 @@ installDict = {
     ],
     ###############################################################################
     'eosz': [
-        'Poste grand calcul eosXXXz (Onera)',
+        'Poste grand calcul eosXXXz (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -290,7 +290,7 @@ installDict = {
     ],
     ###############################################################################
     'ld': [
-        'Poste grand calcul Onera-ld (Onera)',
+        'Poste grand calcul Onera-ld (ONERA)',
         'gfortran', # f77compiler
         'gfortran', # f90compiler
         'gcc', # Cppcompiler
@@ -306,7 +306,7 @@ installDict = {
     ],
     ###############################################################################
     'mangrove': [
-        'Machine avec acces GPU (Onera)',
+        'Machine avec acces GPU (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -322,7 +322,7 @@ installDict = {
     ],
     ###############################################################################
     'moloch': [
-        'Machine dev Cedre (Onera)',
+        'Machine dev Cedre (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -354,7 +354,7 @@ installDict = {
     ],
     ###############################################################################
     'visio': [
-        'Machine de post gfx (Onera)',
+        'Machine de post gfx (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -370,7 +370,7 @@ installDict = {
     ],
     ##############################################################################
     'visung': [
-        'Machine de post gfx (Onera)',
+        'Machine de post gfx (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -386,7 +386,7 @@ installDict = {
     ],
     ##############################################################################
     'visung_el8': [
-        'Machine de post gfx (Onera)',
+        'Machine de post gfx (ONERA)',
         'ifx', # f77compiler
         'ifx', # f90compiler
         'icx', # Cppcompiler
@@ -402,7 +402,7 @@ installDict = {
     ],
     ###############################################################################
     'elmer': [
-        'Machine de gros post gfx (Onera)',
+        'Machine de gros post gfx (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -418,7 +418,7 @@ installDict = {
     ],
     ###############################################################################
     'fulvio': [
-        'Machine post gfx legacy (Onera)',
+        'Machine post gfx legacy (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -570,9 +570,9 @@ installDict = {
         [], # f77AdditionalOptions
         True, # useOMP
         False, # static
-        ['/usr/include', '/usr/include/hdf5/openmpi', '/usr/lib/x86_64-linux-gnu/openmpi/include'], # additionalIncludePaths
+        ['/usr/include', '/usr/include/openmpi-x86_64'], # additionalIncludePaths
         ['gfortran', 'gomp'], # additionalLibs
-        ['/usr/lib/x86_64-linux-gnu/hdf5/openmpi', '/usr/lib/x86_64-linux-gnu'], # additionalLibPaths
+        ['/usr/lib64', '/usr/lib64/openmpi/lib'], # additionalLibPaths
         False, # useCuda
         [] # NvccAdditionalOptions
     ],
@@ -609,8 +609,8 @@ installDict = {
         [] # NvccAdditionalOptions
     ],
     ###############################################################################
-    'sator_coda2': [
-        'Cluster de calcul Sator Saphire (Onera)',
+    'sator_coda': [
+        'Cluster de calcul Sator Saphire (ONERA)',
         'gfortran', # f77compiler
         'gfortran', # f90compiler
         'gcc', # Cppcompiler
@@ -618,31 +618,15 @@ installDict = {
         [], # f77AdditionalOptions
         True, # useOMP
         False, # static
-        [], # additionalIncludePaths
-        [], # additionalLibs
-        [], # additionalLibPaths
+        ['/usr/include/openblas/'], # additionalIncludePaths
+        ['openblas'], # additionalLibs
+        ['/usr/lib64/'], # additionalLibPaths
         False, # useCuda
         [] # NvccAdditionalOptions
     ],
     ###############################################################################
     'sator': [
-        'Cluster de calcul Sator Broadwell (Onera)',
-        'ifort', # f77compiler
-        'ifort', # f90compiler
-        'icc', # Cppcompiler
-        ['-DCACHELINE=32', '-DNB_SOCKET=2', '-DCORE_PER_SOCK=14', '-Dvtune', '-DSIMD=AVX2'], # CppAdditionalOptions
-        [], # f77AdditionalOptions
-        True, # useOMP
-        False, # static
-        [], # additionalIncludePaths
-        [], # additionalLibs
-        [], # additionalLibPaths
-        False, # useCuda
-        [] # NvccAdditionalOptions
-    ],
-    ###############################################################################
-    'sator_brw': [
-        'Cluster de calcul Sator Broadwell (Onera)',
+        'Cluster de calcul Sator Broadwell (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -658,7 +642,7 @@ installDict = {
     ],
     ###############################################################################
     'sator_sky': [
-        'Cluster de calcul Sator Skylake (Onera)',
+        'Cluster de calcul Sator Skylake (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -674,7 +658,7 @@ installDict = {
     ],
     ###############################################################################
     'sator_cas': [
-        'Cluster de calcul Sator Cascadelake (Onera)',
+        'Cluster de calcul Sator Cascadelake (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -690,7 +674,7 @@ installDict = {
     ],
     ###############################################################################
     'sator_sph': [
-        'Cluster de calcul Sator Saphire (Onera)',
+        'Cluster de calcul Sator Saphire (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -706,7 +690,7 @@ installDict = {
     ],
     ###############################################################################
     'sator_gcc': [
-        'Cluster de calcul Sator Saphire (Onera)',
+        'Cluster de calcul Sator Saphire (ONERA)',
         'gfortran', # f77compiler
         'gfortran', # f90compiler
         'gcc', # Cppcompiler
@@ -738,7 +722,7 @@ installDict = {
     ],
     ###############################################################################
     'juno_gcc': [
-        'Machine dev Juno rocky8 (Onera)',
+        'Machine dev Juno rocky8 (ONERA)',
         'gfortran', # f77compiler
         'gfortran', # f90compiler
         'gcc', # Cppcompiler
@@ -754,7 +738,7 @@ installDict = {
     ],
     ###############################################################################
     'juno_coda': [
-        'Machine dev Juno rocky8 (Onera) (env. coda)',
+        'Machine dev Juno rocky8 (ONERA) (env. coda)',
         'gfortran', # f77compiler
         'gfortran', # f90compiler
         'gcc', # Cppcompiler
@@ -770,7 +754,7 @@ installDict = {
     ],
     ###############################################################################
     'juno': [
-        'Machine dev Juno rocky8 (Onera)',
+        'Machine dev Juno rocky8 (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -786,7 +770,7 @@ installDict = {
     ],
     ###############################################################################
     'spiro': [
-        'Machine dev Spiro (Onera)',
+        'Machine dev Spiro (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler
@@ -802,7 +786,7 @@ installDict = {
     ],
     ###############################################################################
     'chi85bi': [
-        'Cluster EDF (Onera)',
+        'Cluster EDF (ONERA)',
         'gfortran', # f77compiler
         'gfortran', # f90compiler
         'gcc', # Cppcompiler
@@ -818,7 +802,7 @@ installDict = {
     ],
     ###############################################################################
     'Raspail': [
-        'Machine DTIM (Onera)',
+        'Machine DTIM (ONERA)',
         'gfortran-7', # f77compiler
         'gfortran-7', # f90compiler
         'clang++-5.0', # Cppcompiler
@@ -867,7 +851,7 @@ installDict = {
     ],
     ###############################################################################
     'dumbo': [
-        'Grosse machine de post-traitement (Onera)',
+        'Grosse machine de post-traitement (ONERA)',
         'ifort', # f77compiler
         'ifort', # f90compiler
         'icc', # Cppcompiler

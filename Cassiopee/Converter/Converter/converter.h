@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -61,7 +61,6 @@ namespace K_CONVERTER
   PyObject* isFinite(PyObject* self, PyObject* args);
   PyObject* setNANValuesAt(PyObject* self, PyObject* args);
   PyObject* convertBAR2Struct(PyObject* self, PyObject* args);
-  PyObject* convertStruct2Tetra(PyObject* self, PyObject* args);
   PyObject* convertStruct2TetraBary(PyObject* self, PyObject* args);
   PyObject* convertStruct2TetraBaryBoth(PyObject* self, PyObject* args);
   PyObject* convertStruct2Hexa(PyObject* self, PyObject* args);
@@ -69,12 +68,11 @@ namespace K_CONVERTER
   PyObject* convertHexa2Struct(PyObject* self, PyObject* args);
   PyObject* convertUnstruct2NGon(PyObject* self, PyObject* args);
   PyObject* convertUnstruct2Hexa(PyObject* self, PyObject* args);
-  PyObject* convertHexa2Tetra(PyObject* self, PyObject* args);
-  PyObject* convertPenta2Tetra(PyObject* self, PyObject* args);
-  PyObject* convertPyra2Tetra(PyObject* self, PyObject* args);
+  PyObject* mergeByEltType(PyObject* self, PyObject* args);
   PyObject* convertNGon2TetraBary(PyObject* self, PyObject* args);
   PyObject* convertMix2BE(PyObject* self, PyObject* args);
   PyObject* convertNGon2TetraBaryBoth(PyObject* self, PyObject* args);
+  PyObject* convertArray2Tetra(PyObject* self, PyObject* args);
   PyObject* convertArray2TetraBary(PyObject* self, PyObject* args);
   PyObject* convertArray2TetraBaryBoth(PyObject* self, PyObject* args);
   PyObject* convertHO2LO(PyObject* self, PyObject* args);
@@ -226,14 +224,18 @@ namespace K_CONVERTER
   void tagDefinedBC3D(E_Int posd, E_Int im, E_Int jm, E_Int km,
                       K_FLD::FldArrayF& f, K_FLD::FldArrayI& wins);
   // Methods for diffArrays
-  PyObject* diff2(PyObject* arrays1, PyObject* arrays2);
+  PyObject* diff2(PyObject* arrays1, PyObject* arrays2,
+                  E_Float atol=1.e-11, E_Float rtol=0.);
   PyObject* diff3(PyObject* arrays1, PyObject* arrays2, PyObject* arrays3);
 
   E_Int checkRecognisedFormat(char* format);
 
+  // Convert structured to tetra
+  PyObject* convertStruct2Tetra(const char* varString, FldArrayF* f,
+                                E_Int ni, E_Int nj, E_Int nk);
+
   // Method for prismatic conversion
-  void buildSortedPrism(E_Int elt, K_FLD::FldArrayI& cn, E_Int& diag,
-                        E_Int* indir);
+  void buildSortedPrism(const std::vector<E_Int>& vertices, E_Int* indir, E_Int& diag);
   // Method for diffArrays
   E_Bool searchField2(K_FLD::FldArrayF& f1,
                       K_FLD::FldArrayF& error,
@@ -241,7 +243,8 @@ namespace K_CONVERTER
                       std::vector<E_Int>& pos1, std::vector<E_Int>& pos2,
                       E_Int posx1, E_Int posy1, E_Int posz1,
                       E_Int posx2, E_Int posy2, E_Int posz2,
-                      E_Bool coordPresent);
+                      E_Bool coordPresent,
+                      E_Float atol=1.e-11, E_Float rtol=0.);
 
   /* Functions for detectEmptyBC */
   void detectEmptyBCrec(std::vector<E_Int*>& win,

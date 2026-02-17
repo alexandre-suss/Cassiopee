@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -78,6 +78,7 @@ PyObject* K_CONVERTER::randomizeVar(PyObject* self, PyObject* args)
     }
   }
 
+  RELEASESHAREDS(tpl, fn);
   RELEASESHAREDB(res, array, f, cn);
   return tpl;
 } 

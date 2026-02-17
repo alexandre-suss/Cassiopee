@@ -5,27 +5,32 @@ from . import Distributed
 from . import converter
 
 # Acces a Distributed
-from .Distributed import readZones, _readZones, convert2PartialTree, _convert2PartialTree, convert2SkeletonTree, readNodesFromPaths, readPyTreeFromPaths, writeNodesFromPaths, mergeGraph, splitGraph
+from .Distributed import (
+    readZones, _readZones, convert2PartialTree, _convert2PartialTree,
+    convert2SkeletonTree, readNodesFromPaths, readPyTreeFromPaths,
+    writeNodesFromPaths, mergeGraph, splitGraph
+)
 
-__all__ = ['rank', 'size', 'master', 'KCOMM', 'COMM_WORLD', 'SUM',
-           'MIN', 'MAX', 'LAND',
-           'setCommunicator', 'barrier', 'send', 'isend', 'recv', 'requestWaitall',
-           'sendRecv', 'sendRecvC',
-           'bcast', 'Bcast', 'gather', 'Gather',
-           'reduce', 'Reduce', 'allreduce', 'Allreduce',
-           'bcastZone', 'gatherZones', 'allgatherZones',
-           'allgatherDict', 'allgatherDict2', 'allgatherTree',
-           'allgather', 'passNext', 'allgatherNext',
-           'getSizeOf',
-           'readZones', 'writeZones', 'convert2PartialTree', 'convert2SkeletonTree',
-           'readNodesFromPaths', 'readPyTreeFromPaths', 'writeNodesFromPaths',
-           'convertFile2SkeletonTree', 'convertFile2PyTree', 'convertPyTree2File',
-           'seq', 'print0', 'printA',
-           'createBboxDict', 'computeGraph', 'addXZones',
-           '_addXZones', '_addMXZones', '_addBXZones', '_addLXZones',
-           'rmXZones', '_rmXZones', '_rmMXZones', '_rmBXZones', 'getProcDict',
-           'getProc', 'setProc', '_setProc', 'getPropertyDict', 'getProperty',
-           'COMM_WORLD']
+__all__ = [
+    'rank', 'size', 'master',
+    'KCOMM', 'COMM_WORLD', 'SUM', 'MIN', 'MAX', 'LAND',
+    'setCommunicator', 'abort', 'barrier',
+    'send', 'isend', 'recv', 'requestWaitall', 'sendRecv', 'sendRecvC',
+    'bcast', 'Bcast', 'gather', 'Gather',
+    'reduce', 'Reduce', 'allreduce', 'Allreduce',
+    'bcastZone', 'gatherZones', 'allgatherZones',
+    'allgatherDict', 'allgatherDict2', 'allgatherTree',
+    'allgather', 'passNext', 'allgatherNext',
+    'getSizeOf',
+    'readZones', 'writeZones', 'convert2PartialTree', 'convert2SkeletonTree',
+    'readNodesFromPaths', 'readPyTreeFromPaths', 'writeNodesFromPaths',
+    'convertFile2SkeletonTree', 'convertFile2PyTree', 'convertPyTree2File',
+    'seq', 'print0', 'printA',
+    'createBboxDict', 'computeGraph', 'addXZones',
+    '_addXZones', '_addMXZones', '_addBXZones', '_addLXZones',
+    'rmXZones', '_rmXZones', '_rmMXZones', '_rmBXZones', 'getProcDict',
+    'getProc', 'setProc', '_setProc', 'getPropertyDict', 'getProperty'
+]
 
 from mpi4py import MPI
 import numpy
@@ -58,6 +63,12 @@ def setCommunicator(com):
     KCOMM = com
     rank = KCOMM.rank
     size = KCOMM.size
+
+#==============================================================================
+# abort: terminate the entire MPI job immediately
+#==============================================================================
+def abort(errorcode=0):
+    KCOMM.Abort(errorcode)
 
 #==============================================================================
 # barrier
@@ -896,7 +907,7 @@ def _updateGridConnectivity(a):
                 elif kmin == kmax and kmin == 1: suffix = 'kmin'+str(imin)+str(jmin)
                 elif kmin == kmax: suffix = 'kmax'+str(imin)+str(jmin)
 
-                zopp = Internal.getNodeFromName(a, oppName+'_MX_'+z[0]+'-'+suffix)
+                zopp = Internal.getNodeFromName2(a, oppName+'_MX_'+z[0]+'-'+suffix)
 
                 if zopp is not None:
 
@@ -936,7 +947,7 @@ def _revertMXGridConnectivity(a):
                 # Recherche le nom de la bandelette en raccord
                 oppName = Internal.getValue(n)
 
-                zopp = Internal.getNodeFromName(a, oppName)
+                zopp = Internal.getNodeFromName2(a, oppName)
                 xzopp = Internal.getNodeFromName1(zopp, 'XZone')
 
                 if xzopp is not None:
@@ -969,7 +980,7 @@ def _revertBXGridConnectivity(a):
             for n in nodes:
                 # Recherche le nom de la bandelette en raccord
                 oppName = Internal.getValue(n)
-                zopp = Internal.getNodeFromName(a, oppName)
+                zopp = Internal.getNodeFromName2(a, oppName)
                 if zopp is not None:
                     xzopp = Internal.getNodeFromName1(zopp, 'XZone')
                     if xzopp is not None:
@@ -999,12 +1010,12 @@ def _revertBXGridConnectivity(a):
 
             nodes = Internal.getNodesFromType1(g, 'GridConnectivity_t')
             for n in nodes:
-                gctype = Internal.getNodeFromType(n,'GridConnectivityType_t')
+                gctype = Internal.getNodeFromType(n, 'GridConnectivityType_t')
                 gctype = Internal.getValue(gctype)
                 if gctype == 'Abutting':
                     # Recherche le nom de la bandelette en raccord
                     oppName = Internal.getValue(n)
-                    zopp = Internal.getNodeFromName(a, oppName)
+                    zopp = Internal.getNodeFromName2(a, oppName)
                     if zopp is not None:
                         xzopp = Internal.getNodeFromName1(zopp, 'XZone')
                         if xzopp is not None:

@@ -493,13 +493,13 @@ def extrudeCartesian(t, tb, check=False, extrusion="cart", dz=0.01, NPas=10, spa
 
         for z in Internal.getZones(tree):
 
-            zdim     = Internal.getValue(z)
+            zdim = Internal.getValue(z)
 
             # Modif rind cellule GH en kmin et kmax
             rind = Internal.getNodeFromName1(z, "Rind")[1]
             rind[4]=ific; rind[5]=ific
             # Modif range BC
-            BCs = Internal.getNodesFromType(z, "BC_t")
+            BCs = Internal.getNodesFromType2(z, "BC_t")
             for bc in BCs:
                 ptrg = Internal.getNodeFromName(bc, "PointRange")[1]
                 ptrg[2,0] = 3
@@ -611,7 +611,7 @@ def setInterpData_Hybride(t_3d, tc_3d, t_curvi, extrusion=None, interpDataType=1
             for zsr in Internal.getNodesFromType(zc, "ZoneSubRegion_t"):
                 zsrname = Internal.getName(zsr)
                 zsrname = zsrname.split('_')
-                if zsrname[0]=='IBCD' and zsrname[1] == itype:
+                if zsrname[0] == 'IBCD' and zsrname[1] == itype:
                     zrname = Internal.getValue(zsr)
                     ptlistD= Internal.getNodeFromName(zsr,'PointListDonor')[1]
                     zloc   = Internal.getNodeFromName(t_3d,zrname)
@@ -701,7 +701,7 @@ def setInterpData_Hybride(t_3d, tc_3d, t_curvi, extrusion=None, interpDataType=1
 #
 # extrusion: make an extrusion from a 2D profile. ATTENTION, each zone of the profile must be joined in one single zone
 # smoothing : smooth the front during the front 2 specific treatment in the cases of local refinements
-# balancing ; balance the entire distribution after the octree generation, useful for symetries
+# balancing ; balance the entire distribution after the octree generation, useful for symmetries
 # distrib : new distribution at the end of prepare1
 #===================================================================================================================
 def prepare1(t_case, t_out, tc_out, t_in=None, to=None, snears=0.01, dfar=10., dfarList=[],
@@ -1417,7 +1417,7 @@ def prepare1(t_case, t_out, tc_out, t_in=None, to=None, snears=0.01, dfar=10., d
                     zrname = zonesRIBC[nozr][0]
                     interpPtsBB = Generator.BB(allInterpPts[nozr])
                     for z in zones:
-                        bba = C.getFields('GridCoordinates', z)[0]
+                        bba = C.getFields('GridCoordinates', z, api=1)[0]
                         if Generator.bboxIntersection(interpPtsBB,bba,isBB=True):
                             zname = z[0]
                             popp = Cmpi.getProc(z)
@@ -1435,7 +1435,7 @@ def prepare1(t_case, t_out, tc_out, t_in=None, to=None, snears=0.01, dfar=10., d
                         zrname = zonesRIBC[nozr][0]
                         interpPtsBB2 = Generator.BB(allInterpPts2[nozr])
                         for z in zones:
-                            bba = C.getFields('GridCoordinates', z)[0]
+                            bba = C.getFields('GridCoordinates', z, api=1)[0]
                             if Generator.bboxIntersection(interpPtsBB2,bba,isBB=True):
                                 zname = z[0]
                                 popp = Cmpi.getProc(z)

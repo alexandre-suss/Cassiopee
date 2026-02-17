@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -380,10 +380,27 @@ typedef struct {
                       E_Float& xp, E_Float& yp, E_Float& zp,
                       E_Bool& in, E_Float& dist2);
 
+  /* Calcule la distance minimale entre deux blocs structurés 
+     et retourne les indices correspondants */
+  void compMeanDist(const E_Int ni1, const E_Int nj1,
+    const E_Float* x1, const E_Float* y1, const E_Float* z1,
+    const E_Int ni2, const E_Int nj2,
+    const E_Float* x2, const E_Float* y2, const E_Float* z2,
+    E_Int& ind1s, E_Int& ind2s, E_Float& dmin);
+
+  /* Analyse l'orientation de deux blocs structurés. 
+     Retourne -1 si les normales sont inversées, 1 sinon */
+  void rectifyNormals(const E_Int ni1, const E_Int nj1, const E_Int ind1,
+    const E_Float* x1, const E_Float* y1, const E_Float* z1,
+    const E_Int ni2, const E_Int nj2, const E_Int ind2,
+    const E_Float* x2, const E_Float* y2, const E_Float* z2,
+    const E_Float distmin,
+    E_Int& isopp);
+
   /* Calcul de l'aire d'un triangle ABC a partir des longueurs a, b et c
      de ses trois cotes (formule de Heron). 
      Retourne 0. si triangle degenere */
-  E_Float compTriangleArea(E_Float a, E_Float b, E_Float c);
+  E_Float compTriangleArea(const E_Float a, const E_Float b, const E_Float c);
 
   /* Calcul le cercle circonscrit a un triangle du plan (x,y)
      IN: p1, p2, p3: triangles coordinates (in plane x,y)
@@ -623,15 +640,17 @@ typedef struct {
   // Bounding boxes et Cartesian Elements Bounding boxes (CEBB)
   //===========================================================================
   /* Bounding box d'une grille structuree */
-  void boundingBoxStruct(E_Int im, E_Int jm, E_Int km, 
-                   E_Float* x, E_Float* y, E_Float* z,
-                   E_Float& xmin, E_Float& ymin, E_Float& zmin,
-                   E_Float& xmax, E_Float& ymax, E_Float& zmax);
+  void boundingBoxStruct(
+   E_Int im, E_Int jm, E_Int km, 
+   E_Float* x, E_Float* y, E_Float* z,
+   E_Float& xmin, E_Float& ymin, E_Float& zmin,
+   E_Float& xmax, E_Float& ymax, E_Float& zmax);
 
   /* Bounding box d'une grille non structuree */ 
-  void boundingBoxUnstruct(E_Int npts, E_Float* xt, E_Float* yt, E_Float* zt,
-                   E_Float& xmin, E_Float& ymin, E_Float& zmin,
-                   E_Float& xmax, E_Float& ymax, E_Float& zmax);
+  void boundingBoxUnstruct(
+   const E_Int npts, const E_Float* xt, const E_Float* yt, const E_Float* zt,
+   E_Float& xmin, E_Float& ymin, E_Float& zmin,
+   E_Float& xmax, E_Float& ymax, E_Float& zmax);
 
   /* Bounding box globale d'une liste de grilles */
   void globalBoundingBox(
@@ -840,17 +859,17 @@ typedef struct {
                                  K_FLD::FldArrayI& cn, 
                                  K_FLD::FldArrayF& angle);
 
-  /* calcul de la hauteur li�e � la courbure pour des i-arrays */
+  /* calcul de la hauteur liee a la courbure pour des i-arrays */
   void compStructCurvatureHeight1D(E_Int im, E_Float* xt, E_Float* yt, E_Float* zt, 
                                    E_Float* hmaxt);
-  /* calcul de la hauteur li�e � la courbure pour des (i,j)-arrays */
+  /* calcul de la hauteur liee a la courbure pour des (i,j)-arrays */
   void compStructCurvatureHeight2D(E_Int im, E_Int jm, 
                                    E_Float* xt, E_Float* yt, E_Float* zt, 
                                    E_Float* hmaxt);
-  /* calcul de la hauteur li�e � la courbure pour des BAR*/
+  /* calcul de la hauteur liee a la courbure pour des BAR*/
   void compCurvatureHeightForBAR(E_Int npts, E_Float* xt, E_Float* yt, E_Float* zt, 
                                  K_FLD::FldArrayI& cn, E_Float* hmaxt);
-  /* calcul de la hauteur li�e � la courbure pour des surfaces TRI et QUAD */
+  /* calcul de la hauteur liee a la courbure pour des surfaces TRI et QUAD */
   void compCurvatureHeightForTRIQUAD(E_Int npts, E_Float* xt, E_Float* yt, E_Float* zt, 
                                      K_FLD::FldArrayI& cn,
                                      E_Float* hmaxt);

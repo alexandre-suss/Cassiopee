@@ -1,5 +1,5 @@
-/*    
-    Copyright 2013-2025 Onera.
+/*
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -29,7 +29,7 @@ PyObject* K_RIGIDMOTION::copyCoords(PyObject* self, PyObject* args)
     PyObject *xin, *yin, *zin;
     PyObject *xout, *yout, *zout;
     if (!PYPARSETUPLE_(args, OOOO_ OO_, &xin, &yin, &zin, &xout, &yout, &zout)) return NULL;
-    
+
     E_Int size;
     E_Float *xi, *yi, *zi;
     K_NUMPY::getFromNumpyArray(xin, xi, size);

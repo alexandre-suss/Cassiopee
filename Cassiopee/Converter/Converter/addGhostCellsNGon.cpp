@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -135,7 +135,7 @@ PyObject* K_CONVERTER::addGhostCellsNGonNodes(PyObject* self, PyObject* args)
   else addGhostCellsNGon3D(depth, *f, *cn, neltsAdd, sizeFN2, sizeEF2, facesExt, fout, cnout);
 
   // Sortie
-  cnout->setNGon(cn->getNGonType());
+  cnout->setNGonType(cn->getNGonType());
   PyObject* tpl = K_ARRAY::buildArray3(*fout, varString, *cnout, eltType, api);
   delete cnout; delete fout;
   RELEASESHAREDU(arrayN, f, cn);

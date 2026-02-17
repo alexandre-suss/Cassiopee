@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -159,5 +159,6 @@ PyObject* K_CPLOT::blur(PyObject* self, PyObject* args)
   }
 
   RELEASESHAREDS(array, im);
+  Py_INCREF(Py_None);
   return Py_None;
 }

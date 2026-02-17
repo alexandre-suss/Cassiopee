@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -40,6 +40,7 @@ namespace K_POST
   PyObject* selectCells3(PyObject* self, PyObject* args);
   PyObject* selectCellCenters(PyObject* self, PyObject* args);
   PyObject* selectCellCentersBoth(PyObject* self, PyObject* args);
+  PyObject* selectExteriorVertices(PyObject* self, PyObject* args);
   PyObject* selectInteriorFaces(PyObject* self, PyObject* args);
   PyObject* selectExteriorFaces(PyObject* self, PyObject* args);
   PyObject* selectExteriorFacesStructured(PyObject* self, PyObject* args);
@@ -92,7 +93,7 @@ namespace K_POST
 //   I(ABCD) = Aire(ABCD)*(F(A)+F(B)+F(C)+F(D))/4
 //   Aire(ABCD) = ||AB^AC||/2+||DB^DC||/2
 // ============================================================================
-  void integStruct(
+  void integStructNodeCenter2D(
     const E_Int ni, const E_Int nj,
     const E_Float* ratio, const E_Float* surf, const E_Float* field,
     E_Float& result);
@@ -100,7 +101,7 @@ namespace K_POST
 // Compute linear integral of field F, structured 1D case
 //   I(AB) = Length(AB)*(F(A)+F(B))/2
 // ============================================================================
-  void integStruct1D(
+  void integStructNodeCenter1D(
     const E_Int ni,
     const E_Float* ratio, const E_Float* length, const E_Float* field,
     E_Float& result);
@@ -109,7 +110,7 @@ namespace K_POST
 // field defined in centers, structured case
 // IN: ni1, nj1 : dim en centres
 // ============================================================================
-  void integStructNodeCenter(
+  void integStructCellCenter2D(
     const E_Int ni1, const E_Int nj1,
     const E_Float* ratio, const E_Float* surf, const E_Float* field,
     E_Float& result);
@@ -117,7 +118,7 @@ namespace K_POST
 // ============================================================================
 // Compute linear integral of field F, node/center case, 1D
 // ============================================================================
-  void integStructNodeCenter1D(
+  void integStructCellCenter1D(
     const E_Int ni,
     const E_Float* ratio, const E_Float* length, const E_Float* field,
     E_Float& result);
@@ -129,27 +130,18 @@ namespace K_POST
 //   I(ABC) = Aire(ABC)*(F(A)+F(B)+F(C)+F(D))/4   QUAD
 //   Aire(ABC) = ||AB^AC||/2
 // ============================================================================
-  void integUnstruct(
-    FldArrayI& cn, const char* eltType,
+  void integUnstructNodeCenter(
+    FldArrayI& cn,
     const E_Float* ratio, const E_Float* surf, const E_Float* field,
-    E_Float& result);
-
-// ============================================================================
-// Compute linear integral of field F, unstructured 1D case
-//   I(AB) = Length(AB)*(F(A)+F(B))/2
-// ============================================================================
-  void integUnstruct1D(
-    FldArrayI& cn, const char* eltType,
-    const E_Float* ratio, const E_Float* length, const E_Float* field,
     E_Float& result);
 
 // ============================================================================
 // Compute surface integral of field F, coordinates in nodes,
 // field defined in centers, unstructured case
 // ============================================================================
-  void integUnstructNodeCenter(
-    FldArrayI& cn,
-    const E_Float* ratio, const E_Float* surf, const E_Float* field,
+  void integUnstructCellCenter(
+    const E_Int nelts, const E_Float* ratio, 
+    const E_Float* surf, const E_Float* field,
     E_Float& result);
 
 /*
@@ -162,10 +154,10 @@ namespace K_POST
   1 if coord is in nodes and F in centers
   resultat: integration result, same size as F variable number
 */
-  E_Int integ1(E_Int niBlk, E_Int njBlk, E_Int nkBlk,
-               E_Int center2node, E_Int posx, E_Int posy, E_Int posz,
-               FldArrayF& coordBlk, FldArrayF& FBlk,
-               FldArrayF& ratioBlk, FldArrayF& resultat);
+  E_Int integStruct2D(E_Int ni, E_Int nj, E_Int nk,
+                      E_Int center2node, E_Int posx, E_Int posy, E_Int posz,
+                      FldArrayF& coord, FldArrayF& F,
+                      FldArrayF& ratio, FldArrayF& resultat);
 /*
   Compute the linear integral of field F
   ni*nj*nk: dimension of coordinate array (coord)
@@ -176,11 +168,10 @@ namespace K_POST
   1 if coord is in nodes and F in centers
   resultat: integration result, same size as F variable number
 */
-  E_Int integ11D(E_Int niBlk, E_Int njBlk, E_Int nkBlk,
-                 E_Int center2node, E_Int posx, E_Int posy, E_Int posz,
-                 FldArrayF& coordBlk, FldArrayF& FBlk,
-                 FldArrayF& ratioBlk, FldArrayF& resultat);
-
+  E_Int integStruct1D(E_Int ni, E_Int nj, E_Int nk,
+                      E_Int center2node, E_Int posx, E_Int posy, E_Int posz,
+                      FldArrayF& coord, FldArrayF& F,
+                      FldArrayF& ratio, FldArrayF& resultat);
 /*
   Compute the surface integral of field F
   posx, posy, posz: positions de x,y,z dans coord
@@ -192,13 +183,11 @@ namespace K_POST
   1 if coord is in nodes and F in centers
   resultat: integration result, same size as F variable number
 */
-  E_Int integUnstruct1(E_Int center2node,
-                       E_Int posx, E_Int posy, E_Int posz,
-                       FldArrayI& cn,
-                       FldArrayF& coord,
-                       FldArrayF& F,
-                       FldArrayF& ratio,
-                       FldArrayF& resultat);
+  E_Int integUnstruct2D(E_Int center2node,
+                        E_Int posx, E_Int posy, E_Int posz,
+                        FldArrayI& cn, const char* eltType, FldArrayF& coord,
+                        FldArrayF& F, FldArrayF& ratio,
+                        FldArrayF& resultat);
 /*
   Calcul de l'integrale de F sur une surface "BAR"
   posx, posy, posz: positions de x,y,z dans coord
@@ -210,11 +199,11 @@ namespace K_POST
   1 if coord is in nodes and F in centers
   resultat: integration result, same size as F variable number
 */
-  E_Int integUnstruct11D(E_Int center2node,
-                         E_Int posx, E_Int posy, E_Int posz,
-                         FldArrayI& cn, FldArrayF& coord,
-                         FldArrayF& F, FldArrayF& ratio,
-                         FldArrayF& resultat);
+  E_Int integUnstruct1D(E_Int center2node,
+                        E_Int posx, E_Int posy, E_Int posz,
+                        FldArrayI& cn, const char* eltType, FldArrayF& coord,
+                        FldArrayF& F, FldArrayF& ratio,
+                        FldArrayF& resultat);
 /*
    Compute the surface integral of field F * normal vect(n)
    ni*nj*nk: dimension of coordinate array (coord)
@@ -224,11 +213,11 @@ namespace K_POST
    1 if coord is in nodes and F in centers
    resultat: integration result, same size as F variable number*3
 */
-  E_Int integ2(E_Int niBlk, E_Int njBlk, E_Int nkBlk,
-               E_Int center2node,
-               E_Int posx, E_Int posy, E_Int posz,
-               FldArrayF& coordBlk, FldArrayF& FBlk,
-               FldArrayF& ratioBlk, FldArrayF& resultat);
+  E_Int integNormStruct2D(E_Int ni, E_Int nj, E_Int nk,
+                          E_Int center2node,
+                          E_Int posx, E_Int posy, E_Int posz,
+                          FldArrayF& coord, FldArrayF& F,
+                          FldArrayF& ratio, FldArrayF& resultat);
 
 /*
   Compute the surface integral of field F * normal vect(n)
@@ -239,11 +228,11 @@ namespace K_POST
   1 if coord is in nodes and F in centers
   resultat: integration result, same size as F variable number*3
 */
-  E_Int integUnstruct2(E_Int center2node,
-                       E_Int posx, E_Int posy, E_Int posz,
-                       FldArrayI& cnBlk, FldArrayF& coordBlk,
-                       FldArrayF& FBlk, FldArrayF& ratioBlk,
-                       FldArrayF& resultat);
+  E_Int integNormUnstruct2D(E_Int center2node,
+                            E_Int posx, E_Int posy, E_Int posz,
+                            FldArrayI& cn, const char* eltType, FldArrayF& coord,
+                            FldArrayF& F, FldArrayF& ratio,
+                            FldArrayF& resultat);
 
 /*
    Compute the surface integral of scalar product field
@@ -255,11 +244,11 @@ namespace K_POST
    1 if coord is in nodes and F in centers
    resultat: integration result, same size as F variable number
 */
-  E_Int integ3(E_Int niBlk, E_Int njBlk, E_Int nkBlk,
-               E_Int center2node,
-               E_Int posx, E_Int posy, E_Int posz,
-               FldArrayF& coordBlk, FldArrayF& FBlk,
-               FldArrayF& ratioBlk, E_Float& resultat);
+  E_Int integNormProdStruct2D(E_Int ni, E_Int nj, E_Int nk,
+                              E_Int center2node,
+                              E_Int posx, E_Int posy, E_Int posz,
+                              FldArrayF& coord, FldArrayF& F,
+                              FldArrayF& ratio, E_Float& resultat);
 
 /*
    Compute the surface integral of scalar product field
@@ -271,11 +260,11 @@ namespace K_POST
    1 if coord is in nodes and F in centers
    resultat: integration result, same size as F variable number
 */
-  E_Int integUnstruct3(E_Int center2node,
-                       E_Int posx, E_Int posy, E_Int posz,
-                       FldArrayI& cnBlk, FldArrayF& coordBlk,
-                       FldArrayF& FBlk, FldArrayF& ratioBlk,
-                       E_Float& resultat);
+  E_Int integNormProdUnstruct2D(E_Int center2node,
+                               E_Int posx, E_Int posy, E_Int posz,
+                               FldArrayI& cn, const char* eltType, FldArrayF& coord,
+                               FldArrayF& F, FldArrayF& ratio,
+                               E_Float& resultat);
 /*
    Compute the surface integral of moment (OM^F)
    ni*nj*nk: dimension of coordinate array (coord)
@@ -285,12 +274,12 @@ namespace K_POST
    1 if coord is in nodes and F in centers
    resultat: integration result, same size as F variable number
 */
-  E_Int integ4(E_Int niBlk, E_Int njBlk, E_Int nkBlk,
-               E_Int center2node,
-               E_Int posx, E_Int posy, E_Int posz,
-               E_Float cx, E_Float cy, E_Float cz,
-               FldArrayF& coord, FldArrayF& F,
-               FldArrayF& ratio, FldArrayF& resultat);
+  E_Int integMomentStruct2D(E_Int ni, E_Int nj, E_Int nk,
+                            E_Int center2node,
+                            E_Int posx, E_Int posy, E_Int posz,
+                            E_Float cx, E_Float cy, E_Float cz,
+                            FldArrayF& coord, FldArrayF& F,
+                            FldArrayF& ratio, FldArrayF& resultat);
 /*
    Compute the linear integral of moment (OM^F)
    ni*nj*nk: dimension of coordinate array (coord)
@@ -300,12 +289,12 @@ namespace K_POST
    1 if coord is in nodes and F in centers
    resultat: integration result, same size as F variable number
 */
-  E_Int integ41D(E_Int niBlk, E_Int njBlk, E_Int nkBlk,
-                 E_Int center2node,
-                 E_Int posx, E_Int posy, E_Int posz,
-                 E_Float cx, E_Float cy, E_Float cz,
-                 FldArrayF& coord, FldArrayF& F,
-                 FldArrayF& ratio, FldArrayF& resultat);
+  E_Int integMomentStruct1D(E_Int ni, E_Int nj, E_Int nk,
+                            E_Int center2node,
+                            E_Int posx, E_Int posy, E_Int posz,
+                            E_Float cx, E_Float cy, E_Float cz,
+                            FldArrayF& coord, FldArrayF& F,
+                            FldArrayF& ratio, FldArrayF& resultat);
 /*
    Compute the surface integral of moment (OM^F)
    cn: connectivity
@@ -315,12 +304,12 @@ namespace K_POST
    1 if coord is in nodes and F in centers
    resultat: integration result, same size as F variable number
 */
-  E_Int integUnstruct4(E_Int center2node,
-                       E_Int posx, E_Int posy, E_Int posz,
-                       E_Float cx, E_Float cy, E_Float cz,
-                       FldArrayI& cnBlk, FldArrayF& coordBlk,
-                       FldArrayF& FBlk, FldArrayF& ratioBlk,
-                       FldArrayF& resultat);
+  E_Int integMomentUnstruct2D(E_Int center2node,
+                              E_Int posx, E_Int posy, E_Int posz,
+                              E_Float cx, E_Float cy, E_Float cz,
+                              FldArrayI& cn, const char* eltType, FldArrayF& coord,
+                              FldArrayF& F, FldArrayF& ratio,
+                              FldArrayF& resultat);
 /*
    Compute the linear integral of moment (OM^F)
    cn: connectivity
@@ -330,12 +319,12 @@ namespace K_POST
    1 if coord is in nodes and F in centers
    resultat: integration result, same size as F variable number
 */
-  E_Int integUnstruct41D(E_Int center2node,
-                         E_Int posx, E_Int posy, E_Int posz,
-                         E_Float cx, E_Float cy, E_Float cz,
-                         FldArrayI& cnBlk, FldArrayF& coordBlk,
-                         FldArrayF& FBlk, FldArrayF& ratioBlk,
-                         FldArrayF& resultat);
+  E_Int integMomentUnstruct1D(E_Int center2node,
+                              E_Int posx, E_Int posy, E_Int posz,
+                              E_Float cx, E_Float cy, E_Float cz,
+                              FldArrayI& cn, const char* eltType, FldArrayF& coord,
+                              FldArrayF& F, FldArrayF& ratio,
+                              FldArrayF& resultat);
 /*
    Compute the surface integral of moment (OM^F.vect(n))
    ni*nj*nk: dimension of coordinate array (coord)
@@ -345,13 +334,13 @@ namespace K_POST
    1 if coord is in nodes and F in centers
    resultat: integration result, same size as F variable number
 */
-  E_Int integ5(E_Int niBlk, E_Int njBlk, E_Int nkBlk,
-               E_Int center2node,
-               E_Int posx, E_Int posy, E_Int posz,
-               E_Float cx, E_Float cy, E_Float cz,
-               FldArrayF& coordBlk,
-               FldArrayF& FBlk, FldArrayF& ratioBlk,
-               FldArrayF& resultat);
+  E_Int integMomentNormStruct2D(E_Int ni, E_Int nj, E_Int nk,
+                                E_Int center2node,
+                                E_Int posx, E_Int posy, E_Int posz,
+                                E_Float cx, E_Float cy, E_Float cz,
+                                FldArrayF& coord,
+                                FldArrayF& F, FldArrayF& ratio,
+                                FldArrayF& resultat);
 /*
    Compute the surface integral of moment (OM^F.vect(n))
    cn: connectivity
@@ -361,12 +350,12 @@ namespace K_POST
    1 if coord is in nodes and F in centers
    resultat: integration result, same size as F variable number
 */
-  E_Int integUnstruct5(E_Int center2node,
-                       E_Int posx, E_Int posy, E_Int posz,
-                       E_Float cx, E_Float cy, E_Float cz,
-                       FldArrayI& cnBlk, FldArrayF& coordBlk,
-                       FldArrayF& FBlk, FldArrayF& ratioBlk,
-                       FldArrayF& resultat);
+  E_Int integMomentNormUnstruct2D(E_Int center2node,
+                                  E_Int posx, E_Int posy, E_Int posz,
+                                  E_Float cx, E_Float cy, E_Float cz,
+                                  FldArrayI& cn, const char* eltType, FldArrayF& coord,
+                                  FldArrayF& F, FldArrayF& ratio,
+                                  FldArrayF& resultat);
 
 // ============================================================================
 // Compute surface integral of the moment M (OM^F), coordinates 
@@ -374,7 +363,7 @@ namespace K_POST
 //     I(ABCD) = Aire(ABCD)*(F(A)+F(B)+F(C)+F(D))/4
 //     Aire(ABCD) = ||AB^AC||/2+||DB^DC||/2
 // ============================================================================
-  void integMomentStruct(
+  void integMomentStructNodeCenter2D(
     const E_Int ni, const E_Int nj,
     const E_Float cx, const E_Float cy, const E_Float cz,
     const E_Float* ratio, const E_Float* xt, const E_Float* yt,
@@ -387,7 +376,7 @@ namespace K_POST
 //     and field have the same size
 //     I(AB) = LENGTH(ABCD)*(F(A)+F(B))/2
 // ============================================================================
-  void integMomentStruct1D(
+  void integMomentStructNodeCenter1D(
     const E_Int ni, const E_Float cx, const E_Float cy,
     const E_Float cz, const E_Float* ratio,
     const E_Float* xt, const E_Float* yt, const E_Float* zt,
@@ -399,7 +388,7 @@ namespace K_POST
 // Compute surface integral of the moment M (OM^F), coordinates 
 //     are defined in nodes and F is defined in center
 //=============================================================================
-  void integMomentStructNodeCenter(
+  void integMomentStructCellCenter2D(
     const E_Int ni, const E_Int nj,
     const E_Float cx, const E_Float cy, const E_Float cz,
     const E_Float* ratio, const E_Float* xt, const E_Float* yt,
@@ -410,7 +399,7 @@ namespace K_POST
 // Compute linear integral of the moment M (OM^F), coordinates 
 //     are defined in nodes and F is defined in center
 //=============================================================================
-  void integMomentStructNodeCenter1D(
+  void integMomentStructCellCenter1D(
     const E_Int ni, const E_Float cx, const E_Float cy, const E_Float cz,
     const E_Float* ratio, const E_Float* xt, const E_Float* yt, const E_Float* zt,
     const E_Float* length, const E_Float* vx, const E_Float* vy, const E_Float* vz,
@@ -420,7 +409,7 @@ namespace K_POST
 // Compute surface integral of the moment M (OM^F.vect(n)), coordinates 
 //       and F have the same size
 // ============================================================================
-  void integMomentNormStruct(
+  void integMomentNormStructNodeCenter2D(
     const E_Int ni, const E_Int nj, const E_Float cx,
     const E_Float cy, const E_Float cz, const E_Float* ratio, const E_Float* xt,
     const E_Float* yt, const E_Float* zt, const E_Float* sx, const E_Float* sy,
@@ -430,7 +419,7 @@ namespace K_POST
 // Compute surface integral of the moment M (OM^F.vect(n)), coordinates 
 //     are defined in nodes and F is defined in center
 //=============================================================================
-  void integMomentNormStructNodeCenter(
+  void integMomentNormStructCellCenter2D(
     const E_Int ni, const E_Int nj,
     const E_Float cx, const E_Float cy, const E_Float cz, const E_Float* ratio,
     const E_Float* xt, const E_Float* yt, const E_Float* zt, const E_Float* sx,
@@ -442,7 +431,7 @@ namespace K_POST
 //     I(ABCD) = Aire(ABCD)*(F(A)+F(B)+F(C)+F(D))/4
 //     Aire(ABCD) = ||AB^AC||/2+||DB^DC||/2
 // ============================================================================
-  void integNormProdStruct(
+  void integNormProdStructNodeCenter2D(
     const E_Int ni, const E_Int nj, const E_Float* ratio,
     const E_Float* sx, const E_Float* sy, const E_Float* sz,
     const E_Float* vx, const E_Float* vy, const E_Float* vz,
@@ -452,7 +441,7 @@ namespace K_POST
 // Compute surface integral of the product vect(F).vect(n), coordinates 
 // are defined in nodes and F is defined in nodes (center-based formulation)
 //==============================================================================
-  void integNormProdStructNodeCenter(
+  void integNormProdStructCellCenter2D(
     const E_Int ni, const E_Int nj, const E_Float* ratio,
     const E_Float* sx, const E_Float* sy, const E_Float* sz,
     const E_Float* vx, const E_Float* vy, const E_Float* vz,
@@ -464,7 +453,7 @@ namespace K_POST
 //      I(ABCD) = Aire(ABCD)*(F(A)+F(B)+F(C)+F(D))/4
 //      Aire(ABCD) = ||AB^AC||/2+||DB^DC||/2
 //=============================================================================
-  void integNormStruct(
+  void integNormStructNodeCenter2D(
     const E_Int ni, const E_Int nj, const E_Float* ratio,
     const E_Float* sx, const E_Float* sy, const E_Float* sz,
     const E_Float* field, E_Float* result);
@@ -473,7 +462,7 @@ namespace K_POST
 // Compute surface integral of the field F.vect(n), coordinates 
 //     are defined in nodes and F is defined in center
 //=============================================================================
-  void integNormStructNodeCenter(
+  void integNormStructCellCenter2D(
     const E_Int ni, const E_Int nj,
     const E_Float* ratio, const E_Float* sx, const E_Float* sy,
     const E_Float* sz, const E_Float* field, E_Float* result);
@@ -482,8 +471,8 @@ namespace K_POST
 // Compute surface integral of the moment M (OM^F.vect(n)), coordinates 
 // and F have the same size
 // ============================================================================
-  void integMomentNormUnstruct(
-      FldArrayI& cn, const char* eltType,
+  void integMomentNormUnstructNodeCenter(
+      FldArrayI& cn,
       const E_Float cx, const E_Float cy, const E_Float cz, 
       const E_Float* ratio,
       const E_Float* xt, const E_Float* yt, const E_Float* zt,
@@ -494,8 +483,8 @@ namespace K_POST
 // Compute linear integral of the moment.norm (OM^F.n), coordinates 
 // are defined in nodes and F is defined in center, unstructured case
 // ============================================================================
-  void integMomentNormUnstructNodeCenter(
-    FldArrayI& cn, const char* eltType,
+  void integMomentNormUnstructCellCenter(
+    FldArrayI& cn,
     const E_Float cx, const E_Float cy, const E_Float cz,
     const E_Float* ratio,
     const E_Float* xt, const E_Float* yt, const E_Float* zt,
@@ -509,8 +498,8 @@ namespace K_POST
 // I(ABCD) = Aire(ABCD)*(F(A)+F(B)+F(C)F(D))/4  - QUAD
 // Aire(ABCD) = ||AB^AC||/2
 // ============================================================================
-  void integNormUnstruct(
-    FldArrayI& cn, const char* eltType,
+  void integNormUnstructNodeCenter(
+    FldArrayI& cn,
     const E_Float *ratio,
     const E_Float *sx, const E_Float *sy, const E_Float *sz, 
     const E_Float *field, E_Float *result);
@@ -519,7 +508,7 @@ namespace K_POST
 // Compute surface integral of the field F, coordinates are defined
 // in nodes and F is defined in center, unstructured case
 // ============================================================================
-  void integNormUnstructNodeCenter(
+  void integNormUnstructCellCenter(
     const E_Int nelts, const E_Float *ratio,
     const E_Float *nsurfx, const E_Float *nsurfy, const E_Float *nsurfz,
     const E_Float *field, E_Float *result);
@@ -530,42 +519,21 @@ namespace K_POST
 // I(ABCD) = Aire(ABCD)*(F(A)+F(B)+F(C)+F(D))/4
 // Aire(ABCD) = ||AB^AC||/2 + ||DB^DC||/2
 // ============================================================================
-  void integMomentUnstruct(
-    FldArrayI& cn, const char* eltType,
+  void integMomentUnstructNodeCenter(
+    FldArrayI& cn,
     const E_Float cx, const E_Float cy, const E_Float cz, const E_Float* ratio,
     const E_Float* xt, const E_Float* yt, const E_Float* zt, const E_Float* surf,
-    const E_Float* vx, const E_Float* vy, const E_Float* vz, E_Float* result);
-
-// ============================================================================
-// Compute linear integral of the moment M (OM^ F), coordinates
-// and field have the same size
-// ============================================================================
-  void integMomentUnstruct1D(
-    FldArrayI& cn, const char* eltType,
-    const E_Float cx, const E_Float cy, const E_Float cz, const E_Float* ratio,
-    const E_Float* xt, const E_Float* yt, const E_Float* zt, const E_Float* length,
     const E_Float* vx, const E_Float* vy, const E_Float* vz, E_Float* result);
 
 // ============================================================================
 // Compute surface integral of the moment M (OM^F)
 // coordinates are defined in nodes and F is defined in center (unstructured)
 // ============================================================================
-  void integMomentUnstructNodeCenter(
-    FldArrayI& cn, const char* eltType,
+  void integMomentUnstructCellCenter(
+    FldArrayI& cn,
     const E_Float cx, const E_Float cy, const E_Float cz,
     const E_Float* ratio, const E_Float* xt, const E_Float* yt,
     const E_Float* zt, const E_Float* surf,
-    const E_Float* vx, const E_Float* vy, const E_Float* vz,
-    E_Float* result);
-
-// ============================================================================
-// Compute surface integral of the moment M (OM^F)
-// coordinates are defined in nodes and F is defined in center (1D case)
-// ============================================================================
-  void integMomentUnstructNodeCenter1D(
-    FldArrayI& cn, const char* eltType,
-    const E_Float cx, const E_Float cy, const E_Float cz, const E_Float* ratio,
-    const E_Float* xt, const E_Float* yt, const E_Float* zt, const E_Float* surf,
     const E_Float* vx, const E_Float* vy, const E_Float* vz,
     E_Float* result);
 
@@ -575,8 +543,8 @@ namespace K_POST
 //     I(ABC) = Aire(ABC) * (F(A) + F(B) + F(C)) / 3
 //     Aire(ABC) = ||AB ^ AC|| / 2
 // ============================================================================
-  void integNormProdUnstruct(
-    FldArrayI& cn, const char* eltType,
+  void integNormProdUnstructNodeCenter(
+    FldArrayI& cn,
     const E_Float* ratio,
     const E_Float* sx, const E_Float* sy, const E_Float* sz,
     const E_Float* vx, const E_Float* vy, const E_Float* vz,
@@ -586,7 +554,7 @@ namespace K_POST
 // Compute surface integral of the field F, coordinates are defined
 // in nodes and F is defined in center, unstructured case
 // ============================================================================
-  void integNormProdUnstructNodeCenter(
+  void integNormProdUnstructCellCenter(
     const E_Int nbt, const E_Float* ratio,
     const E_Float* sx, const E_Float* sy, const E_Float* sz,
     const E_Float* vx, const E_Float* vy, const E_Float* vz,
@@ -595,12 +563,12 @@ namespace K_POST
 // ============================================================================
 // Etant donnes n champs definis aux noeuds d une grille 3D, 
 // calcul des champs aux centres des interfaces de la grille  
-// fint = 0.25*(fa+fb+fc+fd)
+// fint1 = 0.25*(fa+fb+fc+fd)
 // ============================================================================
   void compIntField(
     const E_Int ni, const E_Int nj, const E_Int nk,
     const E_Int nfld, const E_Float* f,
-    E_Float* fint);
+    E_Float* fint1);
 
 // ============================================================================
 // Compute the values of the vector (f1,f2,f3) at interfaces
@@ -869,6 +837,15 @@ namespace K_POST
     const E_Float* xt, const E_Float* yt, const E_Float* zt,
     E_Float& rotu, E_Float& rotv, E_Float& rotw);
 
+// ============================================================================
+// Calcul du rotationnel moyen d un champ (u,v,w) sur une cellule non structuree
+// ============================================================================
+  void compMeanCurlOfUnstructCell(
+    E_Int noet, FldArrayI& cn, const char* eltType,
+    const E_Float* ux, const E_Float* uy, const E_Float* uz,
+    const E_Float* xt, const E_Float* yt, const E_Float* zt,
+    E_Float& rotx, E_Float& roty, E_Float& rotz);
+
   /* Calcul du gradient d'un champ defini aux noeuds d une grille non structuree
    retourne le gradient defini aux centres des elts.
    IN: xt, yt, zt: coordonnees x, y, z des pts de la grille
@@ -1004,6 +981,19 @@ namespace K_POST
                           E_Int& nin, E_Int& njn, E_Int& nkn);
 
 // ************************************************************************** //
+  PyObject* exteriorVerticesStructured(char* varString, FldArrayF& f,
+                                    E_Int ni, E_Int nj, E_Int nk,
+                                    PyObject* Indices);
+  PyObject* selectExteriorVerticesNGon2D(char* varString, FldArrayF& f,
+                                         FldArrayI& cn,
+                                         PyObject* Indices);
+  PyObject* selectExteriorVerticesNGon3D(char* varString, FldArrayF& f,
+                                         FldArrayI& cn,
+                                         PyObject* Indices);
+  PyObject* selectExteriorVerticesME(char* varString, FldArrayF& f,    
+                                     FldArrayI& cn, char* eltType,
+                                     PyObject* indices);                         
+
   PyObject* exteriorFacesStructured(char* varString, FldArrayF& f,
                                     E_Int ni, E_Int nj, E_Int nk,
                                     PyObject* Indices);
@@ -1011,6 +1001,10 @@ namespace K_POST
   PyObject* exteriorFacesBasic(char* varString, FldArrayF& f,
                                FldArrayI& cn, char* eltType,
                                PyObject* Indices);
+
+  PyObject* selectExteriorFacesME(char* varString, FldArrayF& f,    
+                                  FldArrayI& cn, char* eltType,
+                                  PyObject* indices);                         
 
   PyObject* selectExteriorFacesNGon3D(char* varString, FldArrayF& f,
                                       FldArrayI& cn,
@@ -1034,6 +1028,8 @@ namespace K_POST
   PyObject* selectExteriorEltsBasic3(FldArrayF& f, FldArrayI& cn,
                                      char* eltType, char* varString,
                                      E_Int posx, E_Int posy, E_Int posz);
+  PyObject* selectExteriorEltsME(FldArrayF& f, FldArrayI& cn, 
+                                 char* eltType, char* varString);
   PyObject* selectExteriorEltsNGon(FldArrayF& f, FldArrayI& cn,
                                    char* varString);
 

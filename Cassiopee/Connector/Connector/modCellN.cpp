@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -65,8 +65,8 @@ PyObject* K_CONNECTOR::_modCellN1(PyObject* self, PyObject* args)
     for (E_Int ind = 0; ind < npts; ind++)
     {
       val = ft[ind];
-      if (val == 0.) ft[ind] = -1.;
-      else if (val == 2.) ft[ind] = 1;  
+      if (K_FUNC::fEqualZero(val)) ft[ind] = -1.;
+      else if (K_FUNC::fEqualZero(val - 2.)) ft[ind] = 1;  
     }
   }
 

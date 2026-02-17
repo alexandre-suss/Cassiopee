@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -90,7 +90,7 @@ PyObject* K_GENERATOR::getVolumeMapOfMesh(PyObject* self, PyObject* args)
       E_Int nintk = im1*jm1*km;
       E_Int nint =  ninti + nintj + nintk;
 
-      tpl = K_ARRAY::buildArray3(1, "vol", im1, jm1, km1);
+      tpl = K_ARRAY::buildArray3(1, "vol", im1, jm1, km1, api);
       FldArrayF* f2;
       K_ARRAY::getFromArray3(tpl, f2);
       E_Float* volap = f2->begin(1);
@@ -150,31 +150,29 @@ PyObject* K_GENERATOR::getVolumeMapOfMesh(PyObject* self, PyObject* args)
       else // ME
       {
         E_Int nc = cn->getNConnect();
-        std::vector<char*> eltTypes;
-        K_ARRAY::extractVars(eltType, eltTypes);
 
-        // Get ME mesh dimensionality from the first element type
-        E_Int dim = 3;
-        if (strcmp(eltTypes[0], "BAR") == 0) dim = 1;
-        else if (strcmp(eltTypes[0], "TRI") == 0 or
-                 strcmp(eltTypes[0], "QUAD") == 0) dim = 2;
+        // Get dimensionality
+        E_Int dim = K_CONNECT::getDimME(eltType);
         
         if (dim == 1)
         {
-          K_FLD::FldArrayI& cm = *(cn->getConnect(0)); // TODO
-          E_Int nelts = cm.getSize();
-          E_Int* cn1 = cn->begin(1);
-          E_Int* cn2 = cn->begin(2);
-          E_Int ind1, ind2;
-          E_Float dx, dy, dz;
-          for (E_Int i = 0; i < nelts; i++)
+          E_Int offset = 0;
+          for (E_Int ic = 0; ic < nc; ic++)
           {
-            ind1 = cn1[i] - 1; 
-            ind2 = cn2[i] - 1;
-            dx = xt[ind2] - xt[ind1];
-            dy = yt[ind2] - yt[ind1];
-            dz = zt[ind2] - zt[ind1];
-            vol[i] = sqrt(dx*dx + dy*dy + dz*dz);
+            K_FLD::FldArrayI& cm = *(cn->getConnect(ic)); // TODO
+            E_Int nelts = cm.getSize();
+            E_Int ind1, ind2;
+            E_Float dx, dy, dz;
+            for (E_Int i = 0; i < nelts; i++)
+            {
+              ind1 = cm(i, 1) - 1; 
+              ind2 = cm(i, 2) - 1;
+              dx = xt[ind2] - xt[ind1];
+              dy = yt[ind2] - yt[ind1];
+              dz = zt[ind2] - zt[ind1];
+              vol[i+offset] = std::sqrt(dx*dx + dy*dy + dz*dz);
+            }
+            offset += nelts;
           }
         }
         else if (dim == 2)
@@ -200,28 +198,23 @@ PyObject* K_GENERATOR::getVolumeMapOfMesh(PyObject* self, PyObject* args)
         }
         else if (dim == 3)
         {
+          // Number of facets per element
+          std::vector<E_Int> nfpe;
+          E_Int ierr = K_CONNECT::getNFPE(nfpe, eltType, false);
+          if (ierr != 0)
+          {
+            RELEASESHAREDS(tpl, f2);
+            RELEASESHAREDU(array, f, cn);
+            return NULL;
+          }
+          
           // Compute total number of facets
-          E_Int nfpe;
           E_Int ntotFacets = 0;
           for (E_Int ic = 0; ic < nc; ic++)
           {
             K_FLD::FldArrayI& cm = *(cn->getConnect(ic));
             E_Int nelts = cm.getSize();
-            if (strcmp(eltTypes[ic], "TRI") == 0) nfpe = 1;
-            else if (strcmp(eltTypes[ic], "QUAD") == 0) nfpe = 1;
-            else if (strcmp(eltTypes[ic], "TETRA") == 0) nfpe = 4;
-            else if (strcmp(eltTypes[ic], "PYRA") == 0) nfpe = 5;
-            else if (strcmp(eltTypes[ic], "PENTA") == 0) nfpe = 5;
-            else if (strcmp(eltTypes[ic], "HEXA") == 0) nfpe = 6;
-            else
-            {
-              PyErr_SetString(PyExc_ValueError,
-                              "getVolumeMap: Unknown type of element.");
-              RELEASESHAREDS(tpl, f2);
-              RELEASESHAREDU(array, f, cn);
-              return NULL;
-            }
-            ntotFacets += nfpe*nelts;
+            ntotFacets += nfpe[ic]*nelts;
           }
           
           FldArrayF snx(ntotFacets), sny(ntotFacets), snz(ntotFacets);
@@ -232,8 +225,6 @@ PyObject* K_GENERATOR::getVolumeMapOfMesh(PyObject* self, PyObject* args)
             snx.begin(), sny.begin(), snz.begin(), surf.begin(), vol
           );
         }
-
-        for (size_t ic = 0; ic < eltTypes.size(); ic++) delete [] eltTypes[ic];
       }
       
       RELEASESHAREDS(tpl, f2);

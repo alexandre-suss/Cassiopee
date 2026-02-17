@@ -1,5 +1,5 @@
 /*    
-    Copyright 2013-2025 Onera.
+    Copyright 2013-2026 ONERA.
 
     This file is part of Cassiopee.
 
@@ -227,7 +227,7 @@ E_Int K_ARRAY::getFromArray(PyObject* o,
       return -7;
     }
 
-    // if (K_STRING::cmp(eltType, "NGON") == 0 || K_STRING::cmp(eltType, "NGON*") == 0) c->setNGon(1);
+    // if (K_STRING::cmp(eltType, "NGON") == 0 || K_STRING::cmp(eltType, "NGON*") == 0) c->setNGonType(1);
     Py_DECREF(a); Py_DECREF(ac);
     return 2;
   }
