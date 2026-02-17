@@ -171,7 +171,7 @@ if hdf:
         'Converter/IO/GenIO_hdfcgns.cpp',
         'Converter/IO/GenIO_hdffsdm.cpp',
         'Converter/IO/GenIO_fmtprolb.cpp'
-]
+    ]
 else:
     cpp_srcs += [
         'Converter/IO/GenIO_hdfcgns_stub.cpp',
