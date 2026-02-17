@@ -1051,6 +1051,13 @@ def convertFile2PyTree(fileName, format=None, nptsCurve=20, nptsLine=2,
         t = Internal.createRootNode(children=t[2])
         _upgradeTree(t, uncompress, oldcompress)
         return t
+    
+    elif format == 'fmt_prolb':
+        fileName2 = fileName[:-3] + "h5"
+        t = Converter.converter.convertFile2PyTreeProlb(fileName, 'fmt_prolb', fileName2, 'bin_prolb')
+        t = Internal.createRootNode(children=t[2])
+        _upgradeTree(t, uncompress, oldcompress)
+        return t
 
     elif format == 'unknown':
         try:

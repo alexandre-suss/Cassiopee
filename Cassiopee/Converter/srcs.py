@@ -55,6 +55,7 @@ cpp_srcs =  ['Converter/Converter1.cpp',
              'Converter/convertFilePyTree.cpp',
              'Converter/convertFilePyTreeTau.cpp',
              'Converter/convertFilePyTreeFsdm.cpp',
+             'Converter/convertFilePyTreeProlb.cpp',
              'Converter/setPartialFields.cpp',
              'Converter/setPartialFieldsToSum.cpp',
              'Converter/filterPartialFields.cpp',
@@ -164,7 +165,8 @@ if EXPRESSION:
 
 if hdf:
     cpp_srcs += ['Converter/IO/GenIO_hdfcgns.cpp',
-                 'Converter/IO/GenIO_hdffsdm.cpp']
+                 'Converter/IO/GenIO_hdffsdm.cpp',
+                 'Converter/IO/GenIO_fmtprolb.cpp']
 else:
     cpp_srcs += ['Converter/IO/GenIO_hdfcgns_stub.cpp',
                  'Converter/IO/GenIO_hdffsdm_stub.cpp']

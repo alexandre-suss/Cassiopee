@@ -102,6 +102,7 @@ namespace K_CONVERTER
   PyObject* deletePyTreePaths(PyObject* self, PyObject* args);
   PyObject* convertFile2PyTreeTau(PyObject* self, PyObject* args);
   PyObject* convertFile2PyTreeFsdm(PyObject* self, PyObject* args);
+  PyObject* convertFile2PyTreeProlb(PyObject* self, PyObject* args);
   PyObject* convertPyTree2FFD(PyObject* self, PyObject* args);
   PyObject* cpyGhost2Real(PyObject* self, PyObject* args);
   PyObject* cpyReal2Ghost(PyObject* self, PyObject* args);

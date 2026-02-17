@@ -96,7 +96,7 @@ static PyMethodDef Pyconverter [] =
   {"convertFile2PyTreeFsdm", K_CONVERTER::convertFile2PyTreeFsdm, METH_VARARGS},
   {"convertPyTree2FileFsdm", K_CONVERTER::convertPyTree2FileFsdm, METH_VARARGS},
   {"convertPyTree2FFD", K_CONVERTER::convertPyTree2FFD, METH_VARARGS},
-  
+  {"convertFile2PyTreeProlb", K_CONVERTER::convertFile2PyTreeProlb, METH_VARARGS},
   {"addGhostCellsNGonNodes", K_CONVERTER::addGhostCellsNGonNodes, METH_VARARGS},
   {"addGhostCellsNGonCenters", K_CONVERTER::addGhostCellsNGonCenters, METH_VARARGS},
   {"addGhostCellsNGonBoth", K_CONVERTER::addGhostCellsNGonBoth, METH_VARARGS},

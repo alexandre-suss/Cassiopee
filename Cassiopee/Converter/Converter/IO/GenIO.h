@@ -863,6 +863,16 @@ class GenIO
     /* Ecriture d'un arbre */
     E_Int hdffsdmwrite(char* file, PyObject* tree);
 
+    ///+ PROLB functions
+    /* Lecture dans un arbre*/
+    E_Int prolbread(char* file, PyObject*& tree);
+    E_Int prolbxmlread(char *file, std::vector<const char *> &blockNames,
+                                   std::vector<const char *> &varInfos,
+                                   std::vector<int> &itInfos);
+    E_Int prolbh5read(char *file, const std::vector<const char *> &blockNames,
+                                  const std::vector<const char *> &varInfos, 
+                                  const std::vector<int> &itInfos, PyObject *&tree);
+
     ///+ CPlot functions
     /* Create the socket for communications */
     E_Int cplotClient(char* machine, char* service, int *mySocket);

@@ -730,6 +730,7 @@ def convertExt2Format__(fileName):
     elif extension == '.hdf': format = 'bin_hdf'
     elif extension == '.grid': format = 'bin_tau'
     elif extension == '.h5': format = 'bin_fsdm'
+    elif extension == '.xmf': format = 'fmt_prolb'
     elif extension == '.pickle': format = 'bin_pickle'
     elif extension == '.df3': format = 'bin_df3'
     elif extension == '.3ds': format = 'bin_3ds'
